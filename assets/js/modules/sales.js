@@ -601,8 +601,25 @@ export function initSales() {
       printLink.target = "_blank";
       printLink.rel = "noopener";
 
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = row.Aktif === false ? "btn btn--sm" : "btn btn--sm btn--danger";
+      toggleBtn.textContent = row.Aktif === false ? "Aktifkan" : "Hapus";
+      toggleBtn.addEventListener("click", async () => {
+        const isActive = row.Aktif !== false;
+        const action = isActive ? "membatalkan" : "mengaktifkan kembali";
+        if (!window.confirm(`Yakin ingin ${action} transaksi ${row.ID_Trx}?`)) return;
+        try {
+          await Api.put(`/sales/${row.ID_Trx}`, { Aktif: !isActive });
+          toast.success(isActive ? "Transaksi dibatalkan." : "Transaksi diaktifkan kembali.");
+          load();
+        } catch (err) {
+          toast.error(err.message || "Gagal mengubah status transaksi.");
+        }
+      });
+
       wrap.appendChild(viewBtn);
       wrap.appendChild(printLink);
+      wrap.appendChild(toggleBtn);
       return wrap;
     },
   });

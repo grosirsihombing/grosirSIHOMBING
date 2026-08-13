@@ -2,6 +2,7 @@
  * functions/api/customers/[id].js
  * Route: GET /api/customers/:id
  *        PUT /api/customers/:id
+ *        DELETE /api/customers/:id -> soft delete (Aktif=false)
  */
 
 import { mockRepository, RepoError } from "../../repositories/mockRepository.js";
@@ -32,5 +33,15 @@ export async function onRequestPut(context) {
   } catch (err) {
     if (err instanceof RepoError) return failFromRepoError(err);
     return fail("UPDATE_FAILED", "Gagal memperbarui customer.", 500);
+  }
+}
+
+export async function onRequestDelete(context) {
+  try {
+    const row = await repo.updateCustomer(context.params.id, { Aktif: false });
+    return ok(row);
+  } catch (err) {
+    if (err instanceof RepoError) return failFromRepoError(err);
+    return fail("DELETE_FAILED", "Gagal menonaktifkan customer.", 500);
   }
 }

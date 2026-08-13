@@ -2,6 +2,7 @@
  * functions/api/products/[id].js
  * Route: GET /api/products/:id
  *        PUT /api/products/:id
+ *        DELETE /api/products/:id -> soft delete (Aktif=false)
  */
 
 import { mockRepository, RepoError } from "../../repositories/mockRepository.js";
@@ -32,5 +33,15 @@ export async function onRequestPut(context) {
   } catch (err) {
     if (err instanceof RepoError) return failFromRepoError(err);
     return fail("UPDATE_FAILED", "Gagal memperbarui barang.", 500);
+  }
+}
+
+export async function onRequestDelete(context) {
+  try {
+    const row = await repo.updateProduct(context.params.id, { Aktif: false });
+    return ok(row);
+  } catch (err) {
+    if (err instanceof RepoError) return failFromRepoError(err);
+    return fail("DELETE_FAILED", "Gagal menonaktifkan barang.", 500);
   }
 }

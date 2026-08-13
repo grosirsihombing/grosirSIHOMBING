@@ -2,6 +2,7 @@
  * functions/api/suppliers/[id].js
  * Route: GET /api/suppliers/:id
  *        PUT /api/suppliers/:id
+ *        DELETE /api/suppliers/:id -> soft delete (Aktif=false)
  */
 
 import { mockRepository, RepoError } from "../../repositories/mockRepository.js";
@@ -32,5 +33,15 @@ export async function onRequestPut(context) {
   } catch (err) {
     if (err instanceof RepoError) return failFromRepoError(err);
     return fail("UPDATE_FAILED", "Gagal memperbarui supplier.", 500);
+  }
+}
+
+export async function onRequestDelete(context) {
+  try {
+    const row = await repo.updateSupplier(context.params.id, { Aktif: false });
+    return ok(row);
+  } catch (err) {
+    if (err instanceof RepoError) return failFromRepoError(err);
+    return fail("DELETE_FAILED", "Gagal menonaktifkan supplier.", 500);
   }
 }

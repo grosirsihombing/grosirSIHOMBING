@@ -24,6 +24,18 @@ export function renderShell({ activePage, pageTitle }) {
   registerServiceWorker();
   initInstallPrompt();
 
+  const brand = document.querySelector(".sidebar__brand");
+  if (brand) {
+    brand.innerHTML = `
+      <a href="dashboard.html" class="sidebar__brand-link" aria-label="Toko Grosir SIHOMBING">
+        <img class="sidebar__brand-logo" src="../assets/images/logo-sihombing.png" alt="Toko Grosir Minuman SIHOMBING" />
+        <div class="sidebar__brand-text">
+          <div class="sidebar__brand-name">Toko Grosir SIHOMBING</div>
+          <div class="sidebar__brand-sub">Lengkap • Murah • Terpercaya</div>
+        </div>
+      </a>`;
+  }
+
   const sidebarNav = document.querySelector("[data-sidebar-nav]");
   if (sidebarNav) {
     sidebarNav.innerHTML = "";

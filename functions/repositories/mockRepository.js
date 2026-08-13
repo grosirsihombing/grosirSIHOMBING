@@ -93,6 +93,7 @@ let sales = [
     Catatan: "",
     Created_At: _today,
     Updated_At: _today,
+    Aktif: true,
   },
   // Dalam 7 hari terakhir -> ikut masuk default "Penjualan periode tertentu"
   // (PRD section 44) di dashboard, beda dari TRX-0003 di bawah yang sengaja
@@ -107,6 +108,7 @@ let sales = [
     Catatan: "",
     Created_At: _threeDaysAgo,
     Updated_At: _threeDaysAgo,
+    Aktif: true,
   },
   // Di luar jendela default 7 hari terakhir.
   {
@@ -119,6 +121,7 @@ let sales = [
     Catatan: "",
     Created_At: _tenDaysAgo,
     Updated_At: _tenDaysAgo,
+    Aktif: true,
   },
 ];
 let saleDetails = [
@@ -195,7 +198,7 @@ function totalStokMasuk(productId) {
 
 function totalPenjualan(productId) {
   return saleDetails
-    .filter((d) => d.ID_Barang === productId)
+    .filter((d) => d.ID_Barang === productId && sales.some((s) => s.ID_Trx === d.ID_Trx && s.Aktif !== false))
     .reduce((sum, d) => sum + d.Qty, 0);
 }
 
@@ -221,7 +224,7 @@ export const mockRepository = {
     // (section 41), bukan lagi proxy Master_Barang.Stok_Awal seperti Phase 3.
     const totalStokUnit = products.reduce((sum, p) => sum + computeCurrentStock(p.ID_Barang), 0);
     const today = todayStr();
-    const salesToday = sales.filter((s) => s.Tanggal === today);
+    const salesToday = sales.filter((s) => s.Aktif !== false && s.Tanggal === today);
     const penjualanHariIni = salesToday.reduce((sum, s) => sum + s.Total, 0);
     const lowStockThreshold = 5;
     const stokRendah = products
@@ -257,7 +260,7 @@ export const mockRepository = {
         throw new RepoError("VALIDATION_ERROR", "Tanggal awal tidak boleh melebihi tanggal akhir.");
       }
     }
-    const salesPeriode = sales.filter((s) => s.Tanggal >= periodeFrom && s.Tanggal <= periodeTo);
+    const salesPeriode = sales.filter((s) => s.Aktif !== false && s.Tanggal >= periodeFrom && s.Tanggal <= periodeTo);
 
     return {
       totalBarang: products.filter((p) => p.Aktif).length,
@@ -515,6 +518,14 @@ export const mockRepository = {
     return { ...row, Nama_Customer: customer?.Nama_Customer || "-", Items: items };
   },
 
+  async updateSaleStatus(id, input = {}) {
+    const row = sales.find((s) => s.ID_Trx === id);
+    if (!row) throw new RepoError("SALE_NOT_FOUND", "Transaksi tidak ditemukan.");
+    if (input.Aktif !== undefined) row.Aktif = !!input.Aktif;
+    row.Updated_At = new Date().toISOString();
+    return await this.getSale(id);
+  },
+
   /**
    * Alur (PRD section 34-35): pilih customer -> baca kategori -> untuk tiap
    * item ambil harga default sesuai kategori -> boleh override jika
@@ -633,6 +644,7 @@ export const mockRepository = {
       Catatan: input.Catatan ? String(input.Catatan).trim() : "",
       Created_At: now,
       Updated_At: now,
+      Aktif: true,
     };
     sales.push(saleRow);
 

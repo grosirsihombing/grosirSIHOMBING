@@ -1,4 +1,4 @@
-# Toko Grosir SIHOMBING
+# Zensheet — Toko Grosir SIHOMBING
 
 Sistem Inventory, Sales, Customer & Supplier Management.
 
@@ -16,25 +16,13 @@ Sesuai `docs/PRD.md`. Dibangun **bertahap** mengikuti Development Phase di PRD (
 - [x] **Phase 8 — Branding & PWA**: favicon + ikon app diambil dari logo Toko Sihombing (`assets/icons/`), `manifest.webmanifest` (installable, `display: standalone`), `sw.js` (Service Worker — cache-first untuk aset statis, network-first untuk halaman, `/api/...` tidak pernah di-cache), dan popup custom "Pasang Aplikasi" (`assets/js/components/installPrompt.js`) yang menangkap `beforeinstallprompt` di Chrome/Edge/Android serta instruksi manual "Add to Home Screen" untuk iOS Safari (yang tidak mendukung `beforeinstallprompt`). Terpasang otomatis di semua halaman ber-shell lewat `renderShell()` (`core/shell.js`); halaman cetak (Nota/Kwitansi) cuma dapat favicon, tanpa banner/SW supaya tidak mengganggu alur print.
 - [ ] Phase 9 — Reports
 
-## Data Barang & Harga (dari `list_master_barang.xlsx`)
-
-59 baris di `list_master_barang.xlsx` (kolom: Nama Barang, Harga Retail, Harga Sub Agen, Harga User) sudah dimasukkan ke seed data `functions/repositories/mockRepository.js`:
-
-- **3 barang yang sudah ada di seed** (Aqua Galon/BRG-001, Vit Galon/BRG-002, Aqua 1500 ml/BRG-004) **di-update** harganya mengikuti angka di file, bukan dibuat duplikat.
-- **56 barang baru** ditambahkan sebagai BRG-005 s.d. BRG-060, masing-masing dengan 3 baris harga (Retail/Sub Agen/User) — total 60 barang & 178 baris harga aktif di `Master_Barang`/`Master_Harga`.
-- `Tipe_Komoditi` diisi otomatis dari nama barang (Air Minum/Susu/Gas/Minuman) supaya tersegmentasi rapi di modul Barang.
-- `Stok_Awal` diset **0** untuk ke-56 barang baru — file sumber cuma berisi nama & harga, tidak ada kolom stok. Isi stok sesungguhnya lewat modul **Stok Masuk** (atau **Penyesuaian Stok** kalau cuma mau set angka awal) sebelum mulai transaksi Penjualan, supaya `INSUFFICIENT_STOCK` tidak muncul terus.
-- `Barcode` dikosongkan (file sumber tidak ada kolom barcode) — bisa diisi belakangan lewat modul Barang, tidak wajib (PRD section 12).
-- Sudah dites end-to-end (stok masuk -> jual barang baru dgn kategori Retail -> harga & pengurangan stok otomatis benar) lewat skrip Node yang manggil repository langsung, sama seperti data sebelumnya.
-- ⚠️ Ingat catatan di atas: `MockRepository` hidup di memori, jadi data ini akan reset tiap kali proses Worker restart sampai `GoogleSheetsRepository` yang sesungguhnya dipasang — cocok untuk demo/dev sekarang, tapi belum untuk dipakai di toko beneran.
-
 ## Menjalankan secara lokal
 
 Project ini adalah Cloudflare Pages + Pages Functions app. Untuk development lokal:
 
 ```bash
 npm install -g wrangler
-cd toko-sihombing
+cd zensheet
 wrangler pages dev . --compatibility-date=2024-01-01
 ```
 

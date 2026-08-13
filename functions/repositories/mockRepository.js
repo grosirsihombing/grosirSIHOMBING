@@ -26,249 +26,16 @@ let products = [
   { ID_Barang: "BRG-002", Barcode: "899123456", Nama_Barang: "Vit Galon", Tipe_Komoditi: "Air Minum", Stok_Awal: 3, Aktif: true },
   { ID_Barang: "BRG-003", Barcode: "", Nama_Barang: "Galon Isi Ulang", Tipe_Komoditi: "Air Minum", Stok_Awal: 20, Aktif: true },
   { ID_Barang: "BRG-004", Barcode: "899777001", Nama_Barang: "Aqua 1500 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 2, Aktif: true },
-  // BRG-005 s.d. BRG-060 diimpor dari list_master_barang.xlsx (harga per kategori: Retail/Sub Agen/User).
-  // Stok_Awal diset 0 karena file sumber cuma berisi nama+harga, tidak ada kolom stok -- isi lewat
-  // modul Stok Masuk / Penyesuaian Stok setelah ini.
-  { ID_Barang: "BRG-005", Barcode: "", Nama_Barang: "Le Mineral Galon", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-006", Barcode: "", Nama_Barang: "Tulus Galon", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-007", Barcode: "", Nama_Barang: "Nestle Galon", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-008", Barcode: "", Nama_Barang: "Aqua 600 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-009", Barcode: "", Nama_Barang: "Aqua 330 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-010", Barcode: "", Nama_Barang: "Aqua Gelas 220 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-011", Barcode: "", Nama_Barang: "Aqua 200 ml Cube", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-012", Barcode: "", Nama_Barang: "Vit 550 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-013", Barcode: "", Nama_Barang: "Vit 1500 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-014", Barcode: "", Nama_Barang: "Vit 220 ml Moksa", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-015", Barcode: "", Nama_Barang: "Vit Gelas 220 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-016", Barcode: "", Nama_Barang: "Le Mineral 600 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-017", Barcode: "", Nama_Barang: "Le Mineral 1500 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-018", Barcode: "", Nama_Barang: "Le Mineral 330 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-019", Barcode: "", Nama_Barang: "Teh Pucuk", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-020", Barcode: "", Nama_Barang: "Sui 600 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-021", Barcode: "", Nama_Barang: "Sui 1500 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-022", Barcode: "", Nama_Barang: "Sui 220 Botol", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-023", Barcode: "", Nama_Barang: "Sui Gelas 220 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-024", Barcode: "", Nama_Barang: "Quavit 1500 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-025", Barcode: "", Nama_Barang: "Vola 220 ML/Gelas", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-026", Barcode: "", Nama_Barang: "Teh Gelas", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-027", Barcode: "", Nama_Barang: "Panther", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-028", Barcode: "", Nama_Barang: "Granita", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-029", Barcode: "", Nama_Barang: "Ale-ale", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-030", Barcode: "", Nama_Barang: "Teh Rio", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-031", Barcode: "", Nama_Barang: "Oki Jd Big", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-032", Barcode: "", Nama_Barang: "Olala", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-033", Barcode: "", Nama_Barang: "Kopi Nongkrong", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-034", Barcode: "", Nama_Barang: "Golda", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-035", Barcode: "", Nama_Barang: "Milku", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-036", Barcode: "", Nama_Barang: "Floridina", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-037", Barcode: "", Nama_Barang: "Good Day", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-038", Barcode: "", Nama_Barang: "Mizone", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-039", Barcode: "", Nama_Barang: "Pocari Botol 500 ml", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-040", Barcode: "", Nama_Barang: "Pocari Botol 350 ml", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-041", Barcode: "", Nama_Barang: "Pocari Ken 330 ml", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-042", Barcode: "", Nama_Barang: "Larutan Kaleng 330 ml", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-043", Barcode: "", Nama_Barang: "Nipis Madu", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-044", Barcode: "", Nama_Barang: "Sprite/Cola/Fanta", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-045", Barcode: "", Nama_Barang: "Isoplus", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-046", Barcode: "", Nama_Barang: "Gas 12 kg", Tipe_Komoditi: "Gas", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-047", Barcode: "", Nama_Barang: "Gas 3 kg", Tipe_Komoditi: "Gas", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-048", Barcode: "", Nama_Barang: "You C Orange", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-049", Barcode: "", Nama_Barang: "Water Orange Botol", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-050", Barcode: "", Nama_Barang: "Susu Ultra 125 ml", Tipe_Komoditi: "Susu", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-051", Barcode: "", Nama_Barang: "Susu Ultra 200 ml", Tipe_Komoditi: "Susu", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-052", Barcode: "", Nama_Barang: "Susu Ultra 250 ml", Tipe_Komoditi: "Susu", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-053", Barcode: "", Nama_Barang: "Galon Kosong Aqua", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-054", Barcode: "", Nama_Barang: "Teh Botol Sosro Pet 350 ml", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-055", Barcode: "", Nama_Barang: "Fruit Tea Pet", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-056", Barcode: "", Nama_Barang: "Es Tee Pet 390 ml", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-057", Barcode: "", Nama_Barang: "Es Tee Kotak", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-058", Barcode: "", Nama_Barang: "Teh Kotak Ultra", Tipe_Komoditi: "Minuman", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-059", Barcode: "", Nama_Barang: "Batavia 600 ml", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
-  { ID_Barang: "BRG-060", Barcode: "", Nama_Barang: "Batavia Gelas", Tipe_Komoditi: "Air Minum", Stok_Awal: 0, Aktif: true },
 ];
 
 let prices = [
-  { ID_Harga: "HRG-0001", ID_Barang: "BRG-001", Kategori_Pelanggan: "Retail", Harga_Default: 18500, Boleh_Edit_Harga: false, Aktif: true },
+  { ID_Harga: "HRG-0001", ID_Barang: "BRG-001", Kategori_Pelanggan: "Retail", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
   { ID_Harga: "HRG-0002", ID_Barang: "BRG-001", Kategori_Pelanggan: "Sub Agen", Harga_Default: 18000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0003", ID_Barang: "BRG-001", Kategori_Pelanggan: "User", Harga_Default: 19000, Boleh_Edit_Harga: false, Aktif: true },
+  { ID_Harga: "HRG-0003", ID_Barang: "BRG-001", Kategori_Pelanggan: "User", Harga_Default: 17000, Boleh_Edit_Harga: false, Aktif: true },
   { ID_Harga: "HRG-0004", ID_Barang: "BRG-004", Kategori_Pelanggan: "Retail", Harga_Default: 52000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0005", ID_Barang: "BRG-004", Kategori_Pelanggan: "Sub Agen", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0006", ID_Barang: "BRG-004", Kategori_Pelanggan: "User", Harga_Default: 52000, Boleh_Edit_Harga: false, Aktif: true },
+  { ID_Harga: "HRG-0005", ID_Barang: "BRG-004", Kategori_Pelanggan: "Sub Agen", Harga_Default: 48000, Boleh_Edit_Harga: false, Aktif: true },
+  { ID_Harga: "HRG-0006", ID_Barang: "BRG-004", Kategori_Pelanggan: "User", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
   { ID_Harga: "HRG-0007", ID_Barang: "BRG-003", Kategori_Pelanggan: "Retail", Harga_Default: 15000, Boleh_Edit_Harga: true, Aktif: true },
-  // BRG-001/BRG-004 di atas diupdate & BRG-002 (Vit Galon) di bawah dilengkapi mengikuti
-  // list_master_barang.xlsx (sebelumnya belum punya baris harga sama sekali di seed ini).
-  { ID_Harga: "HRG-0008", ID_Barang: "BRG-002", Kategori_Pelanggan: "Retail", Harga_Default: 15000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0009", ID_Barang: "BRG-002", Kategori_Pelanggan: "Sub Agen", Harga_Default: 14000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0010", ID_Barang: "BRG-002", Kategori_Pelanggan: "User", Harga_Default: 15000, Boleh_Edit_Harga: false, Aktif: true },
-  // HRG-0011 s.d. HRG-0178: harga 3 kategori (Retail/Sub Agen/User) untuk BRG-005 s.d. BRG-060.
-  { ID_Harga: "HRG-0011", ID_Barang: "BRG-005", Kategori_Pelanggan: "Retail", Harga_Default: 19000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0012", ID_Barang: "BRG-005", Kategori_Pelanggan: "Sub Agen", Harga_Default: 19000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0013", ID_Barang: "BRG-005", Kategori_Pelanggan: "User", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0014", ID_Barang: "BRG-006", Kategori_Pelanggan: "Retail", Harga_Default: 18000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0015", ID_Barang: "BRG-006", Kategori_Pelanggan: "Sub Agen", Harga_Default: 16500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0016", ID_Barang: "BRG-006", Kategori_Pelanggan: "User", Harga_Default: 18000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0017", ID_Barang: "BRG-007", Kategori_Pelanggan: "Retail", Harga_Default: 19000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0018", ID_Barang: "BRG-007", Kategori_Pelanggan: "Sub Agen", Harga_Default: 19000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0019", ID_Barang: "BRG-007", Kategori_Pelanggan: "User", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0020", ID_Barang: "BRG-008", Kategori_Pelanggan: "Retail", Harga_Default: 47000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0021", ID_Barang: "BRG-008", Kategori_Pelanggan: "Sub Agen", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0022", ID_Barang: "BRG-008", Kategori_Pelanggan: "User", Harga_Default: 47000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0023", ID_Barang: "BRG-009", Kategori_Pelanggan: "Retail", Harga_Default: 40000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0024", ID_Barang: "BRG-009", Kategori_Pelanggan: "Sub Agen", Harga_Default: 36500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0025", ID_Barang: "BRG-009", Kategori_Pelanggan: "User", Harga_Default: 40000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0026", ID_Barang: "BRG-010", Kategori_Pelanggan: "Retail", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0027", ID_Barang: "BRG-010", Kategori_Pelanggan: "Sub Agen", Harga_Default: 34000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0028", ID_Barang: "BRG-010", Kategori_Pelanggan: "User", Harga_Default: 36000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0029", ID_Barang: "BRG-011", Kategori_Pelanggan: "Retail", Harga_Default: 25000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0030", ID_Barang: "BRG-011", Kategori_Pelanggan: "Sub Agen", Harga_Default: 23000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0031", ID_Barang: "BRG-011", Kategori_Pelanggan: "User", Harga_Default: 25000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0032", ID_Barang: "BRG-012", Kategori_Pelanggan: "Retail", Harga_Default: 32000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0033", ID_Barang: "BRG-012", Kategori_Pelanggan: "Sub Agen", Harga_Default: 31500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0034", ID_Barang: "BRG-012", Kategori_Pelanggan: "User", Harga_Default: 33000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0035", ID_Barang: "BRG-013", Kategori_Pelanggan: "Retail", Harga_Default: 33000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0036", ID_Barang: "BRG-013", Kategori_Pelanggan: "Sub Agen", Harga_Default: 32500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0037", ID_Barang: "BRG-013", Kategori_Pelanggan: "User", Harga_Default: 34000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0038", ID_Barang: "BRG-014", Kategori_Pelanggan: "Retail", Harga_Default: 22000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0039", ID_Barang: "BRG-014", Kategori_Pelanggan: "Sub Agen", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0040", ID_Barang: "BRG-014", Kategori_Pelanggan: "User", Harga_Default: 22000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0041", ID_Barang: "BRG-015", Kategori_Pelanggan: "Retail", Harga_Default: 23000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0042", ID_Barang: "BRG-015", Kategori_Pelanggan: "Sub Agen", Harga_Default: 22000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0043", ID_Barang: "BRG-015", Kategori_Pelanggan: "User", Harga_Default: 23000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0044", ID_Barang: "BRG-016", Kategori_Pelanggan: "Retail", Harga_Default: 47000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0045", ID_Barang: "BRG-016", Kategori_Pelanggan: "Sub Agen", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0046", ID_Barang: "BRG-016", Kategori_Pelanggan: "User", Harga_Default: 47000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0047", ID_Barang: "BRG-017", Kategori_Pelanggan: "Retail", Harga_Default: 52000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0048", ID_Barang: "BRG-017", Kategori_Pelanggan: "Sub Agen", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0049", ID_Barang: "BRG-017", Kategori_Pelanggan: "User", Harga_Default: 52000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0050", ID_Barang: "BRG-018", Kategori_Pelanggan: "Retail", Harga_Default: 40000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0051", ID_Barang: "BRG-018", Kategori_Pelanggan: "Sub Agen", Harga_Default: 36500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0052", ID_Barang: "BRG-018", Kategori_Pelanggan: "User", Harga_Default: 40000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0053", ID_Barang: "BRG-019", Kategori_Pelanggan: "Retail", Harga_Default: 64000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0054", ID_Barang: "BRG-019", Kategori_Pelanggan: "Sub Agen", Harga_Default: 62000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0055", ID_Barang: "BRG-019", Kategori_Pelanggan: "User", Harga_Default: 65000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0056", ID_Barang: "BRG-020", Kategori_Pelanggan: "Retail", Harga_Default: 25000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0057", ID_Barang: "BRG-020", Kategori_Pelanggan: "Sub Agen", Harga_Default: 24000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0058", ID_Barang: "BRG-020", Kategori_Pelanggan: "User", Harga_Default: 25000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0059", ID_Barang: "BRG-021", Kategori_Pelanggan: "Retail", Harga_Default: 29000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0060", ID_Barang: "BRG-021", Kategori_Pelanggan: "Sub Agen", Harga_Default: 28000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0061", ID_Barang: "BRG-021", Kategori_Pelanggan: "User", Harga_Default: 29000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0062", ID_Barang: "BRG-022", Kategori_Pelanggan: "Retail", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0063", ID_Barang: "BRG-022", Kategori_Pelanggan: "Sub Agen", Harga_Default: 18000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0064", ID_Barang: "BRG-022", Kategori_Pelanggan: "User", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0065", ID_Barang: "BRG-023", Kategori_Pelanggan: "Retail", Harga_Default: 17000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0066", ID_Barang: "BRG-023", Kategori_Pelanggan: "Sub Agen", Harga_Default: 16000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0067", ID_Barang: "BRG-023", Kategori_Pelanggan: "User", Harga_Default: 17000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0068", ID_Barang: "BRG-024", Kategori_Pelanggan: "Retail", Harga_Default: 29000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0069", ID_Barang: "BRG-024", Kategori_Pelanggan: "Sub Agen", Harga_Default: 27000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0070", ID_Barang: "BRG-024", Kategori_Pelanggan: "User", Harga_Default: 29000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0071", ID_Barang: "BRG-025", Kategori_Pelanggan: "Retail", Harga_Default: 17000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0072", ID_Barang: "BRG-025", Kategori_Pelanggan: "Sub Agen", Harga_Default: 16000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0073", ID_Barang: "BRG-025", Kategori_Pelanggan: "User", Harga_Default: 17000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0074", ID_Barang: "BRG-026", Kategori_Pelanggan: "Retail", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0075", ID_Barang: "BRG-026", Kategori_Pelanggan: "Sub Agen", Harga_Default: 19000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0076", ID_Barang: "BRG-026", Kategori_Pelanggan: "User", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0077", ID_Barang: "BRG-027", Kategori_Pelanggan: "Retail", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0078", ID_Barang: "BRG-027", Kategori_Pelanggan: "Sub Agen", Harga_Default: 19500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0079", ID_Barang: "BRG-027", Kategori_Pelanggan: "User", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0080", ID_Barang: "BRG-028", Kategori_Pelanggan: "Retail", Harga_Default: 37000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0081", ID_Barang: "BRG-028", Kategori_Pelanggan: "Sub Agen", Harga_Default: 36000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0082", ID_Barang: "BRG-028", Kategori_Pelanggan: "User", Harga_Default: 37000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0083", ID_Barang: "BRG-029", Kategori_Pelanggan: "Retail", Harga_Default: 22000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0084", ID_Barang: "BRG-029", Kategori_Pelanggan: "Sub Agen", Harga_Default: 20500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0085", ID_Barang: "BRG-029", Kategori_Pelanggan: "User", Harga_Default: 22000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0086", ID_Barang: "BRG-030", Kategori_Pelanggan: "Retail", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0087", ID_Barang: "BRG-030", Kategori_Pelanggan: "Sub Agen", Harga_Default: 19500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0088", ID_Barang: "BRG-030", Kategori_Pelanggan: "User", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0089", ID_Barang: "BRG-031", Kategori_Pelanggan: "Retail", Harga_Default: 39000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0090", ID_Barang: "BRG-031", Kategori_Pelanggan: "Sub Agen", Harga_Default: 37500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0091", ID_Barang: "BRG-031", Kategori_Pelanggan: "User", Harga_Default: 39000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0092", ID_Barang: "BRG-032", Kategori_Pelanggan: "Retail", Harga_Default: 21000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0093", ID_Barang: "BRG-032", Kategori_Pelanggan: "Sub Agen", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0094", ID_Barang: "BRG-032", Kategori_Pelanggan: "User", Harga_Default: 21000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0095", ID_Barang: "BRG-033", Kategori_Pelanggan: "Retail", Harga_Default: 21000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0096", ID_Barang: "BRG-033", Kategori_Pelanggan: "Sub Agen", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0097", ID_Barang: "BRG-033", Kategori_Pelanggan: "User", Harga_Default: 21000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0098", ID_Barang: "BRG-034", Kategori_Pelanggan: "Retail", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0099", ID_Barang: "BRG-034", Kategori_Pelanggan: "Sub Agen", Harga_Default: 34500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0100", ID_Barang: "BRG-034", Kategori_Pelanggan: "User", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0101", ID_Barang: "BRG-035", Kategori_Pelanggan: "Retail", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0102", ID_Barang: "BRG-035", Kategori_Pelanggan: "Sub Agen", Harga_Default: 34500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0103", ID_Barang: "BRG-035", Kategori_Pelanggan: "User", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0104", ID_Barang: "BRG-036", Kategori_Pelanggan: "Retail", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0105", ID_Barang: "BRG-036", Kategori_Pelanggan: "Sub Agen", Harga_Default: 32000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0106", ID_Barang: "BRG-036", Kategori_Pelanggan: "User", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0107", ID_Barang: "BRG-037", Kategori_Pelanggan: "Retail", Harga_Default: 130000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0108", ID_Barang: "BRG-037", Kategori_Pelanggan: "Sub Agen", Harga_Default: 125000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0109", ID_Barang: "BRG-037", Kategori_Pelanggan: "User", Harga_Default: 130000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0110", ID_Barang: "BRG-038", Kategori_Pelanggan: "Retail", Harga_Default: 49500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0111", ID_Barang: "BRG-038", Kategori_Pelanggan: "Sub Agen", Harga_Default: 49000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0112", ID_Barang: "BRG-038", Kategori_Pelanggan: "User", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0113", ID_Barang: "BRG-039", Kategori_Pelanggan: "Retail", Harga_Default: 165000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0114", ID_Barang: "BRG-039", Kategori_Pelanggan: "Sub Agen", Harga_Default: 160000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0115", ID_Barang: "BRG-039", Kategori_Pelanggan: "User", Harga_Default: 165000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0116", ID_Barang: "BRG-040", Kategori_Pelanggan: "Retail", Harga_Default: 140000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0117", ID_Barang: "BRG-040", Kategori_Pelanggan: "Sub Agen", Harga_Default: 135000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0118", ID_Barang: "BRG-040", Kategori_Pelanggan: "User", Harga_Default: 140000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0119", ID_Barang: "BRG-041", Kategori_Pelanggan: "Retail", Harga_Default: 130000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0120", ID_Barang: "BRG-041", Kategori_Pelanggan: "Sub Agen", Harga_Default: 125000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0121", ID_Barang: "BRG-041", Kategori_Pelanggan: "User", Harga_Default: 130000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0122", ID_Barang: "BRG-042", Kategori_Pelanggan: "Retail", Harga_Default: 140000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0123", ID_Barang: "BRG-042", Kategori_Pelanggan: "Sub Agen", Harga_Default: 137500, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0124", ID_Barang: "BRG-042", Kategori_Pelanggan: "User", Harga_Default: 140000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0125", ID_Barang: "BRG-043", Kategori_Pelanggan: "Retail", Harga_Default: 42000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0126", ID_Barang: "BRG-043", Kategori_Pelanggan: "Sub Agen", Harga_Default: 39000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0127", ID_Barang: "BRG-043", Kategori_Pelanggan: "User", Harga_Default: 42000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0128", ID_Barang: "BRG-044", Kategori_Pelanggan: "Retail", Harga_Default: 52000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0129", ID_Barang: "BRG-044", Kategori_Pelanggan: "Sub Agen", Harga_Default: 49000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0130", ID_Barang: "BRG-044", Kategori_Pelanggan: "User", Harga_Default: 52000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0131", ID_Barang: "BRG-045", Kategori_Pelanggan: "Retail", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0132", ID_Barang: "BRG-045", Kategori_Pelanggan: "Sub Agen", Harga_Default: 32000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0133", ID_Barang: "BRG-045", Kategori_Pelanggan: "User", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0134", ID_Barang: "BRG-046", Kategori_Pelanggan: "Retail", Harga_Default: 230000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0135", ID_Barang: "BRG-046", Kategori_Pelanggan: "Sub Agen", Harga_Default: 230000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0136", ID_Barang: "BRG-046", Kategori_Pelanggan: "User", Harga_Default: 260000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0137", ID_Barang: "BRG-047", Kategori_Pelanggan: "Retail", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0138", ID_Barang: "BRG-047", Kategori_Pelanggan: "Sub Agen", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0139", ID_Barang: "BRG-047", Kategori_Pelanggan: "User", Harga_Default: 20000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0140", ID_Barang: "BRG-048", Kategori_Pelanggan: "Retail", Harga_Default: 175000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0141", ID_Barang: "BRG-048", Kategori_Pelanggan: "Sub Agen", Harga_Default: 175000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0142", ID_Barang: "BRG-048", Kategori_Pelanggan: "User", Harga_Default: 175000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0143", ID_Barang: "BRG-049", Kategori_Pelanggan: "Retail", Harga_Default: 165000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0144", ID_Barang: "BRG-049", Kategori_Pelanggan: "Sub Agen", Harga_Default: 165000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0145", ID_Barang: "BRG-049", Kategori_Pelanggan: "User", Harga_Default: 165000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0146", ID_Barang: "BRG-050", Kategori_Pelanggan: "Retail", Harga_Default: 130000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0147", ID_Barang: "BRG-050", Kategori_Pelanggan: "Sub Agen", Harga_Default: 125000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0148", ID_Barang: "BRG-050", Kategori_Pelanggan: "User", Harga_Default: 130000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0149", ID_Barang: "BRG-051", Kategori_Pelanggan: "Retail", Harga_Default: 125000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0150", ID_Barang: "BRG-051", Kategori_Pelanggan: "Sub Agen", Harga_Default: 125000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0151", ID_Barang: "BRG-051", Kategori_Pelanggan: "User", Harga_Default: 125000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0152", ID_Barang: "BRG-052", Kategori_Pelanggan: "Retail", Harga_Default: 160000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0153", ID_Barang: "BRG-052", Kategori_Pelanggan: "Sub Agen", Harga_Default: 155000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0154", ID_Barang: "BRG-052", Kategori_Pelanggan: "User", Harga_Default: 160000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0155", ID_Barang: "BRG-053", Kategori_Pelanggan: "Retail", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0156", ID_Barang: "BRG-053", Kategori_Pelanggan: "Sub Agen", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0157", ID_Barang: "BRG-053", Kategori_Pelanggan: "User", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0158", ID_Barang: "BRG-054", Kategori_Pelanggan: "Retail", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0159", ID_Barang: "BRG-054", Kategori_Pelanggan: "Sub Agen", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0160", ID_Barang: "BRG-054", Kategori_Pelanggan: "User", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0161", ID_Barang: "BRG-055", Kategori_Pelanggan: "Retail", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0162", ID_Barang: "BRG-055", Kategori_Pelanggan: "Sub Agen", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0163", ID_Barang: "BRG-055", Kategori_Pelanggan: "User", Harga_Default: 50000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0164", ID_Barang: "BRG-056", Kategori_Pelanggan: "Retail", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0165", ID_Barang: "BRG-056", Kategori_Pelanggan: "Sub Agen", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0166", ID_Barang: "BRG-056", Kategori_Pelanggan: "User", Harga_Default: 35000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0167", ID_Barang: "BRG-057", Kategori_Pelanggan: "Retail", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0168", ID_Barang: "BRG-057", Kategori_Pelanggan: "Sub Agen", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0169", ID_Barang: "BRG-057", Kategori_Pelanggan: "User", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0170", ID_Barang: "BRG-058", Kategori_Pelanggan: "Retail", Harga_Default: 85000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0171", ID_Barang: "BRG-058", Kategori_Pelanggan: "Sub Agen", Harga_Default: 80000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0172", ID_Barang: "BRG-058", Kategori_Pelanggan: "User", Harga_Default: 85000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0173", ID_Barang: "BRG-059", Kategori_Pelanggan: "Retail", Harga_Default: 25000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0174", ID_Barang: "BRG-059", Kategori_Pelanggan: "Sub Agen", Harga_Default: 23000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0175", ID_Barang: "BRG-059", Kategori_Pelanggan: "User", Harga_Default: 25000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0176", ID_Barang: "BRG-060", Kategori_Pelanggan: "Retail", Harga_Default: 17000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0177", ID_Barang: "BRG-060", Kategori_Pelanggan: "Sub Agen", Harga_Default: 16000, Boleh_Edit_Harga: false, Aktif: true },
-  { ID_Harga: "HRG-0178", ID_Barang: "BRG-060", Kategori_Pelanggan: "User", Harga_Default: 17000, Boleh_Edit_Harga: false, Aktif: true },
 ];
 
 let customers = [
@@ -429,10 +196,6 @@ function totalStokMasuk(productId) {
 function totalPenjualan(productId) {
   return saleDetails
     .filter((d) => d.ID_Barang === productId)
-    .filter((d) => {
-      const sale = sales.find((s) => s.ID_Trx === d.ID_Trx);
-      return sale && sale.Status_Trx !== "Dibatalkan";
-    })
     .reduce((sum, d) => sum + d.Qty, 0);
 }
 
@@ -458,7 +221,7 @@ export const mockRepository = {
     // (section 41), bukan lagi proxy Master_Barang.Stok_Awal seperti Phase 3.
     const totalStokUnit = products.reduce((sum, p) => sum + computeCurrentStock(p.ID_Barang), 0);
     const today = todayStr();
-    const salesToday = sales.filter((s) => s.Tanggal === today && s.Status_Trx !== "Dibatalkan");
+    const salesToday = sales.filter((s) => s.Tanggal === today);
     const penjualanHariIni = salesToday.reduce((sum, s) => sum + s.Total, 0);
     const lowStockThreshold = 5;
     const stokRendah = products
@@ -570,13 +333,6 @@ export const mockRepository = {
     return row;
   },
 
-  async deleteProduct(id) {
-    const row = products.find((p) => p.ID_Barang === id);
-    if (!row) throw new RepoError("PRODUCT_NOT_FOUND", "Produk tidak ditemukan.");
-    row.Aktif = !row.Aktif;
-    return row;
-  },
-
   // ---------- Harga_Barang — PRD section 14-19 ----------
   async listPricesForProduct(productId) {
     await this.getProduct(productId);
@@ -681,13 +437,6 @@ export const mockRepository = {
     return row;
   },
 
-  async deleteCustomer(id) {
-    const row = customers.find((c) => c.ID_Customer === id);
-    if (!row) throw new RepoError("CUSTOMER_NOT_FOUND", "Customer tidak ditemukan.");
-    row.Aktif = !row.Aktif;
-    return row;
-  },
-
   // ---------- Supplier — PRD section 23-25 ----------
   async listSuppliers({ page, limit, search } = {}) {
     const filtered = suppliers.filter((s) =>
@@ -740,13 +489,6 @@ export const mockRepository = {
     return row;
   },
 
-  async deleteSupplier(id) {
-    const row = suppliers.find((s) => s.ID_Supplier === id);
-    if (!row) throw new RepoError("SUPPLIER_NOT_FOUND", "Supplier tidak ditemukan.");
-    row.Aktif = !row.Aktif;
-    return row;
-  },
-
   // ---------- Penjualan / Detail_Penjualan — PRD section 31-38 ----------
 
   async listSales({ page, limit, search } = {}) {
@@ -771,14 +513,6 @@ export const mockRepository = {
         Nama_Barang: products.find((p) => p.ID_Barang === d.ID_Barang)?.Nama_Barang || d.ID_Barang,
       }));
     return { ...row, Nama_Customer: customer?.Nama_Customer || "-", Items: items };
-  },
-
-  async deleteSale(id) {
-    const row = sales.find((s) => s.ID_Trx === id);
-    if (!row) throw new RepoError("SALE_NOT_FOUND", "Transaksi tidak ditemukan.");
-    row.Status_Trx = row.Status_Trx === "Dibatalkan" ? "Aktif" : "Dibatalkan";
-    row.Updated_At = new Date().toISOString();
-    return row;
   },
 
   /**
@@ -897,7 +631,6 @@ export const mockRepository = {
       Status_Bayar: status,
       Metode_Bayar: String(metode).trim(),
       Catatan: input.Catatan ? String(input.Catatan).trim() : "",
-      Status_Trx: "Aktif",
       Created_At: now,
       Updated_At: now,
     };

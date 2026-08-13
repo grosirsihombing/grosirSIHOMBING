@@ -1,7 +1,7 @@
 /**
  * modules/sales.js — Modul Penjualan (PRD section 31-38).
  *
- * Alur transaksi (section 34): pilih customer -> pilih barang -> harga
+ * Alur transaksi (section 34): pilih customer lama atau buat customer baru langsung di form -> pilih barang -> harga
  * otomatis dari kategori customer -> boleh override jika Boleh_Edit_Harga
  * true (section 17-19) -> qty -> subtotal -> total -> simpan. Backend
  * (createSale di mockRepository) yang menghitung ulang & memvalidasi harga —
@@ -99,6 +99,7 @@ async function openSaleDetail(saleRow) {
 function openNewSaleModal({ onSaved }) {
   const cart = []; // { ID_Barang, Nama_Barang, Stok_Awal, Qty, Harga_Satuan, Harga_Default, Boleh_Edit_Harga }
   let selectedCustomer = null;
+  let newCustomerDraft = null;
 
   const wrap = document.createElement("div");
   wrap.innerHTML = `
@@ -112,8 +113,41 @@ function openNewSaleModal({ onSaved }) {
         <button type="button" class="btn btn--sm" data-change-customer>Ganti</button>
       </div>
       <div data-customer-search-wrap>
-        <input class="field__control" type="text" placeholder="Cari nama, HP, atau email customer..." id="saleCustomerSearch" autocomplete="off" />
+        <div class="input-group">
+          <input class="field__control" type="text" placeholder="Cari nama, HP, atau email customer..." id="saleCustomerSearch" autocomplete="off" />
+          <button type="button" class="btn" id="saleNewCustomerBtn">+ Customer Baru</button>
+        </div>
         <div id="saleCustomerResults"></div>
+      </div>
+      <div id="saleNewCustomerForm" style="display:none; margin-top:10px; padding:12px; border:1px solid var(--color-border); border-radius:var(--radius-sm);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <strong>Customer Baru</strong>
+          <button type="button" class="btn btn--sm" id="saleCancelNewCustomerBtn">Batal</button>
+        </div>
+        <div class="field">
+          <label class="field__label">Nama Customer *</label>
+          <input class="field__control" id="saleNewCustomerName" required />
+        </div>
+        <div class="field">
+          <label class="field__label">Kategori Pelanggan *</label>
+          <input class="field__control" id="saleNewCustomerCategory" list="saleKategoriList" value="Retail" required />
+          <datalist id="saleKategoriList"><option value="Retail"></option><option value="Sub Agen"></option><option value="User"></option></datalist>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <div class="field" style="flex:1; min-width:160px;">
+            <label class="field__label">No. HP <span class="optional">(opsional)</span></label>
+            <input class="field__control" id="saleNewCustomerPhone" />
+          </div>
+          <div class="field" style="flex:1; min-width:160px;">
+            <label class="field__label">Email <span class="optional">(opsional)</span></label>
+            <input class="field__control" type="email" id="saleNewCustomerEmail" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label">Alamat <span class="optional">(opsional)</span></label>
+          <textarea class="field__control" id="saleNewCustomerAddress" rows="2"></textarea>
+        </div>
+        <button type="button" class="btn btn--primary" id="saleUseNewCustomerBtn">Gunakan Customer Ini</button>
       </div>
     </div>
 
@@ -163,6 +197,10 @@ function openNewSaleModal({ onSaved }) {
   const customerPicked = wrap.querySelector("#saleCustomerPicked");
   const customerSearchInput = wrap.querySelector("#saleCustomerSearch");
   const customerResults = wrap.querySelector("#saleCustomerResults");
+  const newCustomerBtn = wrap.querySelector("#saleNewCustomerBtn");
+  const newCustomerForm = wrap.querySelector("#saleNewCustomerForm");
+  const cancelNewCustomerBtn = wrap.querySelector("#saleCancelNewCustomerBtn");
+  const useNewCustomerBtn = wrap.querySelector("#saleUseNewCustomerBtn");
   const itemHint = wrap.querySelector("[data-item-hint]");
   const productSearchInput = wrap.querySelector("#saleProductSearch");
   const productScanBtn = wrap.querySelector("#saleProductScanBtn");
@@ -177,26 +215,76 @@ function openNewSaleModal({ onSaved }) {
 
   function pickCustomer(c) {
     selectedCustomer = c;
+    newCustomerDraft = null;
+    newCustomerForm.style.display = "none";
     customerSearchWrap.style.display = "none";
     customerPicked.style.display = "flex";
     customerPicked.querySelector("[data-picked-name]").textContent = c.Nama_Customer;
     customerPicked.querySelector("[data-picked-kategori]").textContent = `Kategori: ${c.Kategori_Pelanggan}`;
     customerResults.innerHTML = "";
     customerSearchInput.value = "";
+    enableProductsForCustomer();
+  }
+
+  customerPicked.querySelector("[data-change-customer]").addEventListener("click", () => {
+    selectedCustomer = null;
+    newCustomerDraft = null;
+    customerPicked.style.display = "none";
+    newCustomerForm.style.display = "none";
+    customerSearchWrap.style.display = "block";
+    itemHint.style.display = "";
+    productSearchInput.disabled = true;
+    productSearchInput.placeholder = "Pilih customer dulu";
+    productScanBtn.disabled = true;
+  });
+
+  function enableProductsForCustomer() {
     itemHint.style.display = "none";
     productSearchInput.disabled = false;
     productSearchInput.placeholder = "Cari nama, barcode, atau ID barang...";
     productScanBtn.disabled = false;
   }
 
-  customerPicked.querySelector("[data-change-customer]").addEventListener("click", () => {
-    selectedCustomer = null;
+  function showNewCustomerForm() {
+    customerSearchWrap.style.display = "none";
     customerPicked.style.display = "none";
+    newCustomerForm.style.display = "block";
+    customerResults.innerHTML = "";
+    wrap.querySelector("#saleNewCustomerName").focus();
+  }
+
+  function hideNewCustomerForm() {
+    newCustomerForm.style.display = "none";
     customerSearchWrap.style.display = "block";
-    itemHint.style.display = "";
-    productSearchInput.disabled = true;
-    productSearchInput.placeholder = "Pilih customer dulu";
-    productScanBtn.disabled = true;
+    newCustomerDraft = null;
+  }
+
+  newCustomerBtn.addEventListener("click", showNewCustomerForm);
+  cancelNewCustomerBtn.addEventListener("click", hideNewCustomerForm);
+
+  useNewCustomerBtn.addEventListener("click", () => {
+    const name = wrap.querySelector("#saleNewCustomerName").value.trim();
+    const category = wrap.querySelector("#saleNewCustomerCategory").value.trim();
+    const email = wrap.querySelector("#saleNewCustomerEmail").value.trim();
+    if (!name) { toast.error("Nama customer wajib diisi."); return; }
+    if (!category) { toast.error("Kategori pelanggan wajib diisi."); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error("Format email tidak valid."); return; }
+    newCustomerDraft = {
+      Nama_Customer: name,
+      Kategori_Pelanggan: category,
+      No_HP: wrap.querySelector("#saleNewCustomerPhone").value.trim(),
+      Email: email,
+      Alamat: wrap.querySelector("#saleNewCustomerAddress").value.trim(),
+      Catatan: "",
+      Aktif: true,
+    };
+    selectedCustomer = { ...newCustomerDraft, ID_Customer: null, _isNew: true };
+    newCustomerForm.style.display = "none";
+    customerSearchWrap.style.display = "none";
+    customerPicked.style.display = "flex";
+    customerPicked.querySelector("[data-picked-name]").textContent = `${name} (baru)`;
+    customerPicked.querySelector("[data-picked-kategori]").textContent = `Kategori: ${category}`;
+    enableProductsForCustomer();
   });
 
   customerSearchInput.addEventListener(
@@ -416,13 +504,14 @@ function openNewSaleModal({ onSaved }) {
 
   saveBtn.addEventListener("click", async () => {
     if (!selectedCustomer) {
-      toast.error("Pilih customer terlebih dahulu.");
+      toast.error("Pilih customer lama atau tambah customer baru.");
       return;
     }
     if (cart.length === 0) {
       toast.error("Tambahkan minimal 1 barang.");
       return;
     }
+    let customerForSale = selectedCustomer;
     const payload = {
       ID_Customer: selectedCustomer.ID_Customer,
       Items: cart.map((i) => ({
@@ -441,6 +530,11 @@ function openNewSaleModal({ onSaved }) {
     const originalLabel = saveBtn.textContent;
     saveBtn.textContent = "Menyimpan...";
     try {
+      if (newCustomerDraft) {
+        const customerRes = await Api.post("/customers", newCustomerDraft);
+        customerForSale = customerRes.data;
+        payload.ID_Customer = customerForSale.ID_Customer;
+      }
       await Api.post("/sales", payload);
       toast.success("Transaksi tersimpan.");
       close();
@@ -488,12 +582,6 @@ export function initSales() {
         render: (r) => `<span class="badge badge--${statusBayarBadge(r.Status_Bayar)}">${escapeHtml(r.Status_Bayar)}</span>`,
       },
       { key: "Metode_Bayar", label: "Metode" },
-      {
-        key: "Status_Trx",
-        label: "Status",
-        render: (r) =>
-          `<span class="badge ${r.Status_Trx === "Dibatalkan" ? "badge--neutral" : "badge--success"}">${escapeHtml(r.Status_Trx || "Aktif")}</span>`,
-      },
     ],
     rowActions: (row) => {
       const wrap = document.createElement("div");
@@ -512,29 +600,9 @@ export function initSales() {
       printLink.href = `print-nota.html?id=${encodeURIComponent(row.ID_Trx)}`;
       printLink.target = "_blank";
       printLink.rel = "noopener";
-      if (row.Status_Trx === "Dibatalkan") {
-        printLink.style.display = "none";
-      }
-
-      const cancelBtn = document.createElement("button");
-      cancelBtn.className = "btn btn--sm";
-      cancelBtn.textContent = row.Status_Trx === "Dibatalkan" ? "Aktifkan" : "Hapus";
-      cancelBtn.addEventListener("click", async () => {
-        const cancelling = row.Status_Trx !== "Dibatalkan";
-        const action = cancelling ? "membatalkan" : "mengaktifkan kembali";
-        if (!confirm(`Yakin ingin ${action} transaksi "${row.ID_Trx}"?`)) return;
-        try {
-          await Api.del(`/sales/${encodeURIComponent(row.ID_Trx)}`);
-          toast.success(cancelling ? "Transaksi dibatalkan." : "Transaksi diaktifkan kembali.");
-          load();
-        } catch (err) {
-          toast.error(err.message || "Gagal mengubah status transaksi.");
-        }
-      });
 
       wrap.appendChild(viewBtn);
       wrap.appendChild(printLink);
-      wrap.appendChild(cancelBtn);
       return wrap;
     },
   });

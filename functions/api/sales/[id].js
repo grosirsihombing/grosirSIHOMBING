@@ -17,13 +17,3 @@ export async function onRequestGet(context) {
     return fail("FETCH_FAILED", "Gagal mengambil data transaksi.", 500);
   }
 }
-
-export async function onRequestDelete(context) {
-  try {
-    const row = await repo.deleteSale(context.params.id);
-    return ok(row);
-  } catch (err) {
-    if (err instanceof RepoError) return failFromRepoError(err);
-    return fail("DELETE_FAILED", "Gagal membatalkan transaksi.", 500);
-  }
-}

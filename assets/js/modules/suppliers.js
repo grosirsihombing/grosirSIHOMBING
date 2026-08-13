@@ -110,34 +110,11 @@ export function initSuppliers() {
       },
     ],
     rowActions: (row) => {
-      const wrap = document.createElement("div");
-      wrap.style.display = "flex";
-      wrap.style.gap = "6px";
-      wrap.style.justifyContent = "flex-end";
-
       const editBtn = document.createElement("button");
       editBtn.className = "btn btn--sm";
       editBtn.textContent = "Edit";
       editBtn.addEventListener("click", () => openAdd(row));
-
-      const toggleBtn = document.createElement("button");
-      toggleBtn.className = "btn btn--sm";
-      toggleBtn.textContent = row.Aktif ? "Hapus" : "Aktifkan";
-      toggleBtn.addEventListener("click", async () => {
-        const action = row.Aktif ? "menonaktifkan" : "mengaktifkan";
-        if (!confirm(`Yakin ingin ${action} supplier "${row.Nama_Supplier}"?`)) return;
-        try {
-          await Api.put(`/suppliers/${encodeURIComponent(row.ID_Supplier)}`, { Aktif: !row.Aktif });
-          toast.success(row.Aktif ? "Supplier dinonaktifkan." : "Supplier diaktifkan kembali.");
-          load();
-        } catch (err) {
-          toast.error(err.message || "Gagal mengubah status supplier.");
-        }
-      });
-
-      wrap.appendChild(editBtn);
-      wrap.appendChild(toggleBtn);
-      return wrap;
+      return editBtn;
     },
   });
 

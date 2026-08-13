@@ -1,6 +1,6 @@
 {
-  "name": "Toko Grosir SIHOMBING",
-  "short_name": "Toko Sihombing",
+  "name": "Zensheet — Toko Grosir SIHOMBING",
+  "short_name": "Zensheet",
   "description": "Sistem Inventory, Sales, Customer & Supplier Management — Toko Grosir SIHOMBING",
   "id": "/pages/dashboard.html",
   "start_url": "/pages/dashboard.html",

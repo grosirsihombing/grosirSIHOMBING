@@ -12,8 +12,8 @@
  * Usage: import { initInstallPrompt } from "../components/installPrompt.js"; initInstallPrompt();
  */
 
-const DISMISS_KEY = "toko_sihombing_install_dismissed_until";
-const INSTALLED_KEY = "toko_sihombing_install_done";
+const DISMISS_KEY = "zensheet_install_dismissed_until";
+const INSTALLED_KEY = "zensheet_install_done";
 const SNOOZE_DAYS = 14;
 const SHOW_DELAY_MS = 1800;
 
@@ -88,7 +88,7 @@ function buildBanner({ title, text, actionLabel, onAction }) {
 
 function showAndroidDesktopBanner() {
   buildBanner({
-    title: "Pasang Toko Sihombing",
+    title: "Pasang Zensheet",
     text: "Akses lebih cepat dari layar utama, tanpa buka browser dulu.",
     actionLabel: "Pasang",
     onAction: async () => {
@@ -105,7 +105,7 @@ function showAndroidDesktopBanner() {
 
 function showIosBanner() {
   buildBanner({
-    title: "Pasang Toko Sihombing di iPhone/iPad",
+    title: "Pasang Zensheet di iPhone/iPad",
     text: 'Ketuk tombol "Bagikan" di Safari, lalu pilih "Add to Home Screen".',
     actionLabel: "",
     onAction: null,

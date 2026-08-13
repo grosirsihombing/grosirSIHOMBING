@@ -231,24 +231,8 @@ export function initProducts() {
       editBtn.textContent = "Edit";
       editBtn.addEventListener("click", () => openAdd(row));
 
-      const toggleBtn = document.createElement("button");
-      toggleBtn.className = "btn btn--sm";
-      toggleBtn.textContent = row.Aktif ? "Hapus" : "Aktifkan";
-      toggleBtn.addEventListener("click", async () => {
-        const action = row.Aktif ? "menonaktifkan" : "mengaktifkan";
-        if (!confirm(`Yakin ingin ${action} barang "${row.Nama_Barang}"?`)) return;
-        try {
-          await Api.put(`/products/${encodeURIComponent(row.ID_Barang)}`, { Aktif: !row.Aktif });
-          toast.success(row.Aktif ? "Barang dinonaktifkan." : "Barang diaktifkan kembali.");
-          load();
-        } catch (err) {
-          toast.error(err.message || "Gagal mengubah status barang.");
-        }
-      });
-
       wrap.appendChild(priceBtn);
       wrap.appendChild(editBtn);
-      wrap.appendChild(toggleBtn);
       return wrap;
     },
   });

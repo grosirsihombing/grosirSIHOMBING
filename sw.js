@@ -1,5 +1,5 @@
 /**
- * sw.js — Service Worker Toko Grosir SIHOMBING (Phase 8: PWA)
+ * sw.js — Service Worker Zensheet (Phase 8: PWA)
  *
  * Tujuan minimal V1 (bukan full offline-first app):
  *  - Membuat app installable (syarat PWA: manifest + SW dengan fetch handler).
@@ -11,7 +11,7 @@
  * Naikkan CACHE_VERSION setiap deploy signifikan supaya klien lama otomatis bersih-bersih cache.
  */
 
-const CACHE_VERSION = "toko-sihombing-cache-v1";
+const CACHE_VERSION = "zensheet-cache-v1";
 
 const APP_SHELL = [
   "/",

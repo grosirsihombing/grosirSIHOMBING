@@ -34,13 +34,3 @@ export async function onRequestPut(context) {
     return fail("UPDATE_FAILED", "Gagal memperbarui barang.", 500);
   }
 }
-
-export async function onRequestDelete(context) {
-  try {
-    const row = await repo.deleteProduct(context.params.id);
-    return ok(row);
-  } catch (err) {
-    if (err instanceof RepoError) return failFromRepoError(err);
-    return fail("DELETE_FAILED", "Gagal menghapus barang.", 500);
-  }
-}

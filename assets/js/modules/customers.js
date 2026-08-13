@@ -121,34 +121,11 @@ export function initCustomers() {
       },
     ],
     rowActions: (row) => {
-      const wrap = document.createElement("div");
-      wrap.style.display = "flex";
-      wrap.style.gap = "6px";
-      wrap.style.justifyContent = "flex-end";
-
       const editBtn = document.createElement("button");
       editBtn.className = "btn btn--sm";
       editBtn.textContent = "Edit";
       editBtn.addEventListener("click", () => openAdd(row));
-
-      const toggleBtn = document.createElement("button");
-      toggleBtn.className = "btn btn--sm";
-      toggleBtn.textContent = row.Aktif ? "Hapus" : "Aktifkan";
-      toggleBtn.addEventListener("click", async () => {
-        const action = row.Aktif ? "menonaktifkan" : "mengaktifkan";
-        if (!confirm(`Yakin ingin ${action} customer "${row.Nama_Customer}"?`)) return;
-        try {
-          await Api.put(`/customers/${encodeURIComponent(row.ID_Customer)}`, { Aktif: !row.Aktif });
-          toast.success(row.Aktif ? "Customer dinonaktifkan." : "Customer diaktifkan kembali.");
-          load();
-        } catch (err) {
-          toast.error(err.message || "Gagal mengubah status customer.");
-        }
-      });
-
-      wrap.appendChild(editBtn);
-      wrap.appendChild(toggleBtn);
-      return wrap;
+      return editBtn;
     },
   });
 

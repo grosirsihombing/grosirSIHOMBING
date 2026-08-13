@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Penjualan — Toko Sihombing</title>
+  <link rel="stylesheet" href="../assets/css/base.css" />
+  <link rel="icon" type="image/x-icon" href="../assets/icons/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/icons/favicon-16x16.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <meta name="theme-color" content="#001546" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__brand-name">Toko Grosir SIHOMBING</div>
+        <div class="sidebar__brand-sub">Grosir Minuman</div>
+      </div>
+      <nav class="sidebar__nav" data-sidebar-nav></nav>
+    </aside>
+
+    <div class="sidebar-overlay" data-sidebar-overlay></div>
+
+    <div class="main">
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button class="btn btn--ghost btn--icon topbar__menu-btn" data-menu-toggle aria-label="Menu">☰</button>
+          <div class="topbar__title" data-page-title>Penjualan</div>
+        </div>
+      </header>
+
+      <main class="content">
+        <div id="salesRoot"></div>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" data-bottom-nav></nav>
+  </div>
+
+  <script type="module">
+    import { renderShell } from "../assets/js/core/shell.js";
+    import { initSales } from "../assets/js/modules/sales.js";
+
+    renderShell({ activePage: "sales.html", pageTitle: "Penjualan" });
+    initSales();
+  </script>
+</body>
+</html>

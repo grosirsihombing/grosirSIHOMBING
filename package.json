@@ -1,0 +1,14 @@
+{
+  "name": "toko-sihombing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Toko Grosir SIHOMBING — Inventory, Sales, Customer & Supplier Management System",
+  "scripts": {
+    "dev": "wrangler pages dev . --compatibility-date=2024-01-01",
+    "deploy": "wrangler pages deploy ."
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}

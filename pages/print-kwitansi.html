@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kwitansi — Toko Sihombing</title>
+  <link rel="stylesheet" href="../assets/css/base.css" />
+  <link rel="icon" type="image/x-icon" href="../assets/icons/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/icons/favicon-16x16.png" />
+  <meta name="theme-color" content="#001546" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" />
+</head>
+<body>
+  <div id="printRoot"></div>
+
+  <script type="module">
+    import { initPrintKwitansi } from "../assets/js/modules/documents.js";
+    initPrintKwitansi();
+  </script>
+</body>
+</html>

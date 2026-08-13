@@ -36,11 +36,13 @@ let prices = [
   { ID_Harga: "HRG-0005", ID_Barang: "BRG-004", Kategori_Pelanggan: "Sub Agen", Harga_Default: 48000, Boleh_Edit_Harga: false, Aktif: true },
   { ID_Harga: "HRG-0006", ID_Barang: "BRG-004", Kategori_Pelanggan: "User", Harga_Default: 45000, Boleh_Edit_Harga: false, Aktif: true },
   { ID_Harga: "HRG-0007", ID_Barang: "BRG-003", Kategori_Pelanggan: "Retail", Harga_Default: 15000, Boleh_Edit_Harga: true, Aktif: true },
+  { ID_Harga: "HRG-0008", ID_Barang: "BRG-003", Kategori_Pelanggan: "Sub Agen", Harga_Default: 14000, Boleh_Edit_Harga: true, Aktif: true },
+  { ID_Harga: "HRG-0009", ID_Barang: "BRG-003", Kategori_Pelanggan: "User", Harga_Default: 13000, Boleh_Edit_Harga: true, Aktif: true },
 ];
 
 let customers = [
-  { ID_Customer: "CUST-001", Nama_Customer: "Arif", No_HP: "", Email: "", Kategori_Pelanggan: "Retail", Alamat: "", Catatan: "", Aktif: true },
-  { ID_Customer: "CUST-002", Nama_Customer: "Budi", No_HP: "", Email: "", Kategori_Pelanggan: "Retail", Alamat: "", Catatan: "", Aktif: true },
+  { ID_Customer: "CUST-001", Nama_Customer: "Arif", No_HP: "", Email: "", Alamat: "", Catatan: "", Aktif: true },
+  { ID_Customer: "CUST-002", Nama_Customer: "Budi", No_HP: "", Email: "", Alamat: "", Catatan: "", Aktif: true },
 ];
 
 let suppliers = [
@@ -125,11 +127,11 @@ let sales = [
   },
 ];
 let saleDetails = [
-  { ID_Detail: "DTL-0001", ID_Trx: "TRX-0001", ID_Barang: "BRG-004", Kategori_Pelanggan: "Retail", Qty: 1, Harga_Satuan: 52000, Subtotal: 52000 },
-  { ID_Detail: "DTL-0002", ID_Trx: "TRX-0001", ID_Barang: "BRG-001", Kategori_Pelanggan: "Retail", Qty: 1, Harga_Satuan: 20000, Subtotal: 20000 },
-  { ID_Detail: "DTL-0003", ID_Trx: "TRX-0001", ID_Barang: "BRG-003", Kategori_Pelanggan: "Retail", Qty: 1, Harga_Satuan: 17000, Subtotal: 17000 },
-  { ID_Detail: "DTL-0004", ID_Trx: "TRX-0002", ID_Barang: "BRG-003", Kategori_Pelanggan: "Retail", Qty: 2, Harga_Satuan: 15000, Subtotal: 30000 },
-  { ID_Detail: "DTL-0005", ID_Trx: "TRX-0003", ID_Barang: "BRG-003", Kategori_Pelanggan: "Retail", Qty: 1, Harga_Satuan: 15000, Subtotal: 15000 },
+  { ID_Detail: "DTL-0001", ID_Trx: "TRX-0001", ID_Barang: "BRG-004", Qty: 1, Harga_Satuan: 52000, Subtotal: 52000 },
+  { ID_Detail: "DTL-0002", ID_Trx: "TRX-0001", ID_Barang: "BRG-001", Qty: 1, Harga_Satuan: 20000, Subtotal: 20000 },
+  { ID_Detail: "DTL-0003", ID_Trx: "TRX-0001", ID_Barang: "BRG-003", Qty: 1, Harga_Satuan: 17000, Subtotal: 17000 },
+  { ID_Detail: "DTL-0004", ID_Trx: "TRX-0002", ID_Barang: "BRG-003", Qty: 2, Harga_Satuan: 15000, Subtotal: 30000 },
+  { ID_Detail: "DTL-0005", ID_Trx: "TRX-0003", ID_Barang: "BRG-003", Qty: 1, Harga_Satuan: 15000, Subtotal: 15000 },
 ];
 
 function todayStr() {
@@ -344,9 +346,6 @@ export const mockRepository = {
 
   async upsertPrice(productId, input) {
     await this.getProduct(productId);
-    if (!input.Kategori_Pelanggan || !String(input.Kategori_Pelanggan).trim()) {
-      throw new RepoError("VALIDATION_ERROR", "Kategori pelanggan wajib diisi.");
-    }
     const harga = Number(input.Harga_Default);
     if (isNaN(harga) || harga < 0) {
       throw new RepoError("VALIDATION_ERROR", "Harga tidak boleh kurang dari 0.");
@@ -401,9 +400,6 @@ export const mockRepository = {
     if (!input.Nama_Customer || !String(input.Nama_Customer).trim()) {
       throw new RepoError("VALIDATION_ERROR", "Nama customer wajib diisi.");
     }
-    if (!input.Kategori_Pelanggan || !String(input.Kategori_Pelanggan).trim()) {
-      throw new RepoError("VALIDATION_ERROR", "Kategori pelanggan wajib diisi.");
-    }
     if (input.Email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.Email)) {
       throw new RepoError("VALIDATION_ERROR", "Format email tidak valid.");
     }
@@ -412,7 +408,6 @@ export const mockRepository = {
       Nama_Customer: String(input.Nama_Customer).trim(),
       No_HP: input.No_HP ? String(input.No_HP).trim() : "",
       Email: input.Email ? String(input.Email).trim() : "",
-      Kategori_Pelanggan: String(input.Kategori_Pelanggan).trim(),
       Alamat: input.Alamat ? String(input.Alamat).trim() : "",
       Catatan: input.Catatan ? String(input.Catatan).trim() : "",
       Aktif: input.Aktif !== false,
@@ -433,7 +428,6 @@ export const mockRepository = {
     if (input.Nama_Customer !== undefined) row.Nama_Customer = String(input.Nama_Customer).trim();
     if (input.No_HP !== undefined) row.No_HP = String(input.No_HP).trim();
     if (input.Email !== undefined) row.Email = String(input.Email).trim();
-    if (input.Kategori_Pelanggan !== undefined) row.Kategori_Pelanggan = String(input.Kategori_Pelanggan).trim();
     if (input.Alamat !== undefined) row.Alamat = String(input.Alamat).trim();
     if (input.Catatan !== undefined) row.Catatan = String(input.Catatan).trim();
     if (input.Aktif !== undefined) row.Aktif = !!input.Aktif;
@@ -540,6 +534,9 @@ export const mockRepository = {
     if (!customer) throw new RepoError("VALIDATION_ERROR", "Customer tidak valid.");
     if (!customer.Aktif) throw new RepoError("VALIDATION_ERROR", "Customer tidak aktif.");
 
+    const kategori = String(input.Kategori_Pelanggan || "").trim();
+    if (!kategori) throw new RepoError("VALIDATION_ERROR", "Kategori pelanggan untuk transaksi wajib diisi.");
+
     const rawItems = Array.isArray(input.Items) ? input.Items : [];
     if (rawItems.length === 0) {
       throw new RepoError("VALIDATION_ERROR", "Transaksi harus memiliki minimal 1 barang.");
@@ -580,24 +577,20 @@ export const mockRepository = {
       }
 
       const priceRow = prices.find(
-        (p) => p.ID_Barang === product.ID_Barang && p.Kategori_Pelanggan === customer.Kategori_Pelanggan && p.Aktif
+        (p) => p.ID_Barang === product.ID_Barang && p.Kategori_Pelanggan === kategori && p.Aktif
       );
       if (!priceRow) {
         throw new RepoError(
           "PRICE_NOT_FOUND",
-          `Harga ${product.Nama_Barang} untuk kategori ${customer.Kategori_Pelanggan} belum diatur.`
+          `Harga ${product.Nama_Barang} untuk kategori ${kategori} belum diatur.`
         );
       }
 
       let hargaSatuan = priceRow.Harga_Default;
       const overrideSent = raw.Harga_Satuan !== undefined && raw.Harga_Satuan !== null && raw.Harga_Satuan !== "";
       if (overrideSent) {
-        if (!priceRow.Boleh_Edit_Harga) {
-          throw new RepoError(
-            "VALIDATION_ERROR",
-            `Harga ${product.Nama_Barang} tidak boleh diubah manual.`
-          );
-        }
+        // Harga transaksi selalu boleh diedit manual. Nilai override hanya
+        // berlaku untuk transaksi ini dan tidak mengubah harga master.
         const overrideVal = Number(raw.Harga_Satuan);
         if (isNaN(overrideVal) || overrideVal < 0) {
           throw new RepoError("VALIDATION_ERROR", `Harga manual untuk ${product.Nama_Barang} tidak valid.`);
@@ -610,7 +603,7 @@ export const mockRepository = {
         qty,
         hargaSatuan,
         subtotal: qty * hargaSatuan,
-        kategori: customer.Kategori_Pelanggan,
+        kategori,
       });
     }
 

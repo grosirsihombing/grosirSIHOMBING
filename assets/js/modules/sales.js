@@ -1,8 +1,8 @@
 /**
  * modules/sales.js — Modul Penjualan (PRD section 31-38).
  *
- * Alur transaksi (section 34): pilih customer lama atau buat customer baru langsung di form -> pilih barang -> harga
- * otomatis dari kategori customer -> boleh override jika Boleh_Edit_Harga
+ * Alur transaksi (section 34): pilih customer lama atau buat customer baru langsung di form -> pilih kategori transaksi -> pilih barang -> harga
+ * otomatis dari kategori transaksi -> boleh override jika Boleh_Edit_Harga
  * true (section 17-19) -> qty -> subtotal -> total -> simpan. Backend
  * (createSale di mockRepository) yang menghitung ulang & memvalidasi harga —
  * frontend hanya mengirim override bila memang diizinkan, jadi tidak ada
@@ -99,6 +99,7 @@ async function openSaleDetail(saleRow) {
 function openNewSaleModal({ onSaved }) {
   const cart = []; // { ID_Barang, Nama_Barang, Stok_Awal, Qty, Harga_Satuan, Harga_Default, Boleh_Edit_Harga }
   let selectedCustomer = null;
+  let selectedCategory = "";
   let newCustomerDraft = null;
 
   const wrap = document.createElement("div");
@@ -128,11 +129,6 @@ function openNewSaleModal({ onSaved }) {
           <label class="field__label">Nama Customer *</label>
           <input class="field__control" id="saleNewCustomerName" required />
         </div>
-        <div class="field">
-          <label class="field__label">Kategori Pelanggan *</label>
-          <input class="field__control" id="saleNewCustomerCategory" list="saleKategoriList" value="Retail" required />
-          <datalist id="saleKategoriList"><option value="Retail"></option><option value="Sub Agen"></option><option value="User"></option></datalist>
-        </div>
         <div style="display:flex; gap:12px; flex-wrap:wrap;">
           <div class="field" style="flex:1; min-width:160px;">
             <label class="field__label">No. HP <span class="optional">(opsional)</span></label>
@@ -152,9 +148,20 @@ function openNewSaleModal({ onSaved }) {
     </div>
 
     <div class="field">
-      <label class="field__label">Tambah Barang <span class="optional" data-item-hint>(pilih customer dulu)</span></label>
+      <label class="field__label">Kategori Pelanggan Transaksi *</label>
+      <select class="field__control" id="saleCustomerCategory" required>
+        <option value="">Pilih kategori</option>
+        <option value="Retail">Retail</option>
+        <option value="Sub Agen">Sub Agen</option>
+        <option value="User">User</option>
+      </select>
+      <div class="text-muted" style="font-size:12px; margin-top:4px;">Kategori ini hanya berlaku untuk transaksi ini dan menentukan harga barang.</div>
+    </div>
+
+    <div class="field">
+      <label class="field__label">Tambah Barang <span class="optional" data-item-hint>(pilih customer dan kategori dulu)</span></label>
       <div class="input-group">
-        <input class="field__control" type="text" placeholder="Pilih customer dulu" id="saleProductSearch" autocomplete="off" disabled />
+        <input class="field__control" type="text" placeholder="Pilih customer dan kategori dulu" id="saleProductSearch" autocomplete="off" disabled />
         <button type="button" class="btn" id="saleProductScanBtn" title="Scan barcode" disabled>📷</button>
       </div>
       <div id="saleProductResults"></div>
@@ -201,6 +208,7 @@ function openNewSaleModal({ onSaved }) {
   const newCustomerForm = wrap.querySelector("#saleNewCustomerForm");
   const cancelNewCustomerBtn = wrap.querySelector("#saleCancelNewCustomerBtn");
   const useNewCustomerBtn = wrap.querySelector("#saleUseNewCustomerBtn");
+  const categorySelect = wrap.querySelector("#saleCustomerCategory");
   const itemHint = wrap.querySelector("[data-item-hint]");
   const productSearchInput = wrap.querySelector("#saleProductSearch");
   const productScanBtn = wrap.querySelector("#saleProductScanBtn");
@@ -220,7 +228,7 @@ function openNewSaleModal({ onSaved }) {
     customerSearchWrap.style.display = "none";
     customerPicked.style.display = "flex";
     customerPicked.querySelector("[data-picked-name]").textContent = c.Nama_Customer;
-    customerPicked.querySelector("[data-picked-kategori]").textContent = `Kategori: ${c.Kategori_Pelanggan}`;
+    customerPicked.querySelector("[data-picked-kategori]").textContent = selectedCategory ? `Kategori transaksi: ${selectedCategory}` : "Kategori transaksi belum dipilih";
     customerResults.innerHTML = "";
     customerSearchInput.value = "";
     enableProductsForCustomer();
@@ -234,16 +242,29 @@ function openNewSaleModal({ onSaved }) {
     customerSearchWrap.style.display = "block";
     itemHint.style.display = "";
     productSearchInput.disabled = true;
-    productSearchInput.placeholder = "Pilih customer dulu";
+    productSearchInput.placeholder = "Pilih customer dan kategori dulu";
     productScanBtn.disabled = true;
   });
 
   function enableProductsForCustomer() {
-    itemHint.style.display = "none";
-    productSearchInput.disabled = false;
-    productSearchInput.placeholder = "Cari nama, barcode, atau ID barang...";
-    productScanBtn.disabled = false;
+    const ready = !!selectedCustomer && !!selectedCategory;
+    itemHint.style.display = ready ? "none" : "";
+    productSearchInput.disabled = !ready;
+    productSearchInput.placeholder = ready ? "Cari nama, barcode, atau ID barang..." : "Pilih customer dan kategori dulu";
+    productScanBtn.disabled = !ready;
   }
+
+  categorySelect.addEventListener("change", () => {
+    selectedCategory = categorySelect.value.trim();
+    if (selectedCustomer) {
+      customerPicked.querySelector("[data-picked-kategori]").textContent = selectedCategory ? `Kategori transaksi: ${selectedCategory}` : "Kategori transaksi belum dipilih";
+    }
+    productSearchInput.value = "";
+    productResults.innerHTML = "";
+    cart.splice(0, cart.length);
+    renderCart();
+    enableProductsForCustomer();
+  });
 
   function showNewCustomerForm() {
     customerSearchWrap.style.display = "none";
@@ -264,14 +285,12 @@ function openNewSaleModal({ onSaved }) {
 
   useNewCustomerBtn.addEventListener("click", () => {
     const name = wrap.querySelector("#saleNewCustomerName").value.trim();
-    const category = wrap.querySelector("#saleNewCustomerCategory").value.trim();
     const email = wrap.querySelector("#saleNewCustomerEmail").value.trim();
     if (!name) { toast.error("Nama customer wajib diisi."); return; }
-    if (!category) { toast.error("Kategori pelanggan wajib diisi."); return; }
+    if (!selectedCategory) { toast.error("Pilih kategori pelanggan untuk transaksi ini."); return; }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error("Format email tidak valid."); return; }
     newCustomerDraft = {
       Nama_Customer: name,
-      Kategori_Pelanggan: category,
       No_HP: wrap.querySelector("#saleNewCustomerPhone").value.trim(),
       Email: email,
       Alamat: wrap.querySelector("#saleNewCustomerAddress").value.trim(),
@@ -283,7 +302,7 @@ function openNewSaleModal({ onSaved }) {
     customerSearchWrap.style.display = "none";
     customerPicked.style.display = "flex";
     customerPicked.querySelector("[data-picked-name]").textContent = `${name} (baru)`;
-    customerPicked.querySelector("[data-picked-kategori]").textContent = `Kategori: ${category}`;
+    customerPicked.querySelector("[data-picked-kategori]").textContent = `Kategori transaksi: ${selectedCategory}`;
     enableProductsForCustomer();
   });
 
@@ -313,7 +332,7 @@ function openNewSaleModal({ onSaved }) {
     rows.forEach((r) => {
       const item = document.createElement("div");
       item.className = "search-result-item";
-      item.innerHTML = `<strong>${escapeHtml(r.Nama_Customer)}</strong> <span class="text-muted">(${escapeHtml(r.Kategori_Pelanggan)})</span>`;
+      item.innerHTML = `<strong>${escapeHtml(r.Nama_Customer)}</strong>`;
       item.addEventListener("click", () => pickCustomer(r));
       customerResults.appendChild(item);
     });
@@ -325,7 +344,7 @@ function openNewSaleModal({ onSaved }) {
     "input",
     debounce(async (e) => {
       const q = e.target.value.trim();
-      if (!q || !selectedCustomer) {
+      if (!q || !selectedCustomer || !selectedCategory) {
         productResults.innerHTML = "";
         return;
       }
@@ -356,7 +375,7 @@ function openNewSaleModal({ onSaved }) {
   }
 
   productScanBtn.addEventListener("click", () => {
-    if (!selectedCustomer) return; // tombol seharusnya disabled, jaga-jaga saja
+    if (!selectedCustomer || !selectedCategory) return; // tombol seharusnya disabled, jaga-jaga saja
     scanProduct({
       title: "Scan Barang",
       // Kondisi 2 di PRD section 13 — "1 produk -> langsung pilih" — di sini
@@ -368,9 +387,9 @@ function openNewSaleModal({ onSaved }) {
   async function addToCart(product) {
     try {
       const res = await Api.get(`/products/${product.ID_Barang}/prices`);
-      const priceRow = res.data.find((p) => p.Kategori_Pelanggan === selectedCustomer.Kategori_Pelanggan && p.Aktif);
+      const priceRow = res.data.find((p) => p.Kategori_Pelanggan === selectedCategory && p.Aktif);
       if (!priceRow) {
-        toast.error(`Harga ${product.Nama_Barang} untuk kategori ${selectedCustomer.Kategori_Pelanggan} belum diatur.`);
+        toast.error(`Harga ${product.Nama_Barang} untuk kategori ${selectedCategory} belum diatur.`);
         return;
       }
       const existing = cart.find((i) => i.ID_Barang === product.ID_Barang);
@@ -420,9 +439,7 @@ function openNewSaleModal({ onSaved }) {
       const tr = document.createElement("tr");
 
       const nameTd = document.createElement("td");
-      nameTd.innerHTML = item.Boleh_Edit_Harga
-        ? `${escapeHtml(item.Nama_Barang)} <span class="badge badge--warning" style="margin-left:4px;">Harga bisa diubah</span>`
-        : escapeHtml(item.Nama_Barang);
+      nameTd.innerHTML = `${escapeHtml(item.Nama_Barang)} <span class="badge badge--warning" style="margin-left:4px;">Harga dapat diedit</span>`;
 
       const qtyTd = document.createElement("td");
       const qtyInput = document.createElement("input");
@@ -444,22 +461,25 @@ function openNewSaleModal({ onSaved }) {
       qtyTd.appendChild(qtyInput);
 
       const hargaTd = document.createElement("td");
-      if (item.Boleh_Edit_Harga) {
-        const hargaInput = document.createElement("input");
-        hargaInput.type = "number";
-        hargaInput.min = "0";
-        hargaInput.value = item.Harga_Satuan;
-        hargaInput.className = "field__control";
-        hargaInput.style.padding = "6px 8px";
-        hargaInput.addEventListener("change", () => {
-          const v = Number(hargaInput.value);
-          item.Harga_Satuan = isNaN(v) || v < 0 ? item.Harga_Default : v;
-          renderCart();
-        });
-        hargaTd.appendChild(hargaInput);
-      } else {
-        hargaTd.textContent = formatRupiah(item.Harga_Satuan);
-      }
+      const hargaInput = document.createElement("input");
+      hargaInput.type = "number";
+      hargaInput.min = "0";
+      hargaInput.step = "100";
+      hargaInput.value = item.Harga_Satuan;
+      hargaInput.className = "field__control";
+      hargaInput.style.padding = "6px 8px";
+      hargaInput.title = "Harga transaksi dapat diubah tanpa mengubah harga master";
+      hargaInput.addEventListener("change", () => {
+        const v = Number(hargaInput.value);
+        if (!Number.isFinite(v) || v < 0) {
+          toast.error("Harga harus berupa angka 0 atau lebih.");
+          hargaInput.value = item.Harga_Satuan;
+          return;
+        }
+        item.Harga_Satuan = v;
+        renderCart();
+      });
+      hargaTd.appendChild(hargaInput);
 
       const subtotalTd = document.createElement("td");
       subtotalTd.style.textAlign = "right";
@@ -507,6 +527,10 @@ function openNewSaleModal({ onSaved }) {
       toast.error("Pilih customer lama atau tambah customer baru.");
       return;
     }
+    if (!selectedCategory) {
+      toast.error("Pilih kategori pelanggan untuk transaksi ini.");
+      return;
+    }
     if (cart.length === 0) {
       toast.error("Tambahkan minimal 1 barang.");
       return;
@@ -514,10 +538,12 @@ function openNewSaleModal({ onSaved }) {
     let customerForSale = selectedCustomer;
     const payload = {
       ID_Customer: selectedCustomer.ID_Customer,
+      Kategori_Pelanggan: selectedCategory,
       Items: cart.map((i) => ({
         ID_Barang: i.ID_Barang,
         Qty: i.Qty,
-        // Hanya kirim override jika barang ini memang boleh diedit manual —
+        // Kategori pelanggan adalah milik transaksi, bukan master customer.
+      // Hanya kirim override jika barang ini memang boleh diedit manual —
         // backend tetap memvalidasi ulang (PRD section 17, 35).
         Harga_Satuan: i.Boleh_Edit_Harga ? i.Harga_Satuan : undefined,
       })),

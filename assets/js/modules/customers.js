@@ -19,15 +19,6 @@ function customerForm(existing) {
       <input class="field__control" name="Nama_Customer" required value="${escapeHtml(existing?.Nama_Customer || "")}" />
     </div>
     <div class="field">
-      <label class="field__label">Kategori Pelanggan</label>
-      <input class="field__control" name="Kategori_Pelanggan" list="kategoriList" required value="${escapeHtml(existing?.Kategori_Pelanggan || "Retail")}" />
-      <datalist id="kategoriList">
-        <option value="Retail"></option>
-        <option value="Sub Agen"></option>
-        <option value="User"></option>
-      </datalist>
-    </div>
-    <div class="field">
       <label class="field__label">No. HP <span class="optional">(opsional)</span></label>
       <input class="field__control" name="No_HP" value="${escapeHtml(existing?.No_HP || "")}" />
     </div>
@@ -54,7 +45,6 @@ function readForm(form) {
   const fd = new FormData(form);
   return {
     Nama_Customer: fd.get("Nama_Customer"),
-    Kategori_Pelanggan: fd.get("Kategori_Pelanggan"),
     No_HP: fd.get("No_HP") || "",
     Email: fd.get("Email") || "",
     Alamat: fd.get("Alamat") || "",
@@ -111,7 +101,6 @@ export function initCustomers() {
     columns: [
       { key: "ID_Customer", label: "ID" },
       { key: "Nama_Customer", label: "Nama" },
-      { key: "Kategori_Pelanggan", label: "Kategori" },
       { key: "No_HP", label: "No. HP", render: (r) => r.No_HP || '<span class="text-muted">—</span>' },
       { key: "Email", label: "Email", render: (r) => r.Email || '<span class="text-muted">—</span>' },
       {

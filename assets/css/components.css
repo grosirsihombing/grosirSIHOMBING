@@ -1,0 +1,487 @@
+/* ===========================================================
+   components.css — buttons, cards, tables, modal, toast, states
+   =========================================================== */
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn:hover { background: var(--color-bg); }
+
+.btn--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.btn--primary:hover { background: var(--color-primary-dark); }
+
+.btn--danger {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn--sm { padding: 6px 10px; font-size: 12px; }
+.btn--icon { padding: 8px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ---------- Card ---------- */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.card--summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card--summary .card__label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.card--summary .card__value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.card--summary .card__hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+/* ---------- Table ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table thead th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.data-table tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--color-bg); }
+
+/* ---------- Badges ---------- */
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge--success { background: var(--color-primary-soft); color: var(--color-primary-dark); }
+.badge--warning { background: var(--color-warning-soft); color: var(--color-warning); }
+.badge--danger  { background: var(--color-danger-soft); color: var(--color-danger); }
+.badge--neutral { background: #eef0f2; color: var(--color-text-muted); }
+
+/* ---------- Forms ---------- */
+
+.field { margin-bottom: var(--space-4); }
+
+.field__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.field__label .optional {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.field__control {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.field__control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.field__error {
+  color: var(--color-danger);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  max-width: 320px;
+}
+
+.search-input input {
+  border: none;
+  outline: none;
+  flex: 1;
+  background: transparent;
+}
+
+/* Dropdown hasil pencarian customer/barang di form Transaksi Baru (sales.js) */
+#saleCustomerResults,
+#saleProductResults {
+  max-height: 180px;
+  overflow-y: auto;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+#saleCustomerResults:not(:empty),
+#saleProductResults:not(:empty) {
+  border: 1px solid var(--color-border);
+  border-top: none;
+}
+
+.search-result-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-top: 1px solid var(--color-border);
+}
+
+.search-result-item:first-child { border-top: none; }
+.search-result-item:hover { background: var(--color-bg); }
+
+/* ---------- Input + tombol (search/scan berdampingan) ---------- */
+
+.input-group {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.input-group .field__control { flex: 1; }
+
+/* ---------- Dashboard period filter (Phase 6 — PRD section 44) ---------- */
+
+.dash-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.dash-period__presets,
+.dash-period__custom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.dash-period__custom .field__control {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* ---------- Scanner (Phase 5 — PRD section 13, 43, 69) ---------- */
+
+.scanner__camera {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #111417;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.scanner__camera video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner__camera::after {
+  content: "";
+  position: absolute;
+  inset: 16%;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+.scanner__camera--unavailable::after { display: none; }
+
+.scanner__hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 12px;
+  background: rgba(15, 20, 25, 0.65);
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- Modal ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 25, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 100;
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+}
+
+/* Modal lebar — dipakai untuk form yang butuh lebih banyak ruang,
+   mis. transaksi penjualan multi-item (PRD section 31-36). */
+.modal--lg { max-width: 760px; }
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal__body { padding: var(--space-5); }
+
+.modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---------- Toast ---------- */
+
+.toast-stack {
+  position: fixed;
+  bottom: var(--space-5);
+  right: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  z-index: 200;
+}
+
+@media (max-width: 880px) {
+  .toast-stack {
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: calc(var(--bottomnav-height) + var(--space-3));
+  }
+}
+
+.toast {
+  background: #1c2126;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  box-shadow: var(--shadow-md);
+  min-width: 220px;
+}
+
+.toast--success { background: var(--color-primary-dark); }
+.toast--error { background: var(--color-danger); }
+
+/* ---------- PWA Install Banner (Phase 8) ---------- */
+
+.install-banner {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-5);
+  transform: translateX(-50%);
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  animation: install-banner-in 0.25s ease;
+}
+
+@keyframes install-banner-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.install-banner__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+}
+
+.install-banner__body { flex: 1; min-width: 0; }
+.install-banner__title { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+.install-banner__text { font-size: 12px; color: var(--color-text-muted); line-height: 1.4; }
+
+.install-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.install-banner__close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+}
+.install-banner__close:hover { color: var(--color-text); }
+
+@media (max-width: 880px) {
+  .install-banner {
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: calc(var(--bottomnav-height) + var(--space-3));
+    transform: none;
+    width: auto;
+  }
+  @keyframes install-banner-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ---------- States: loading / empty / error ---------- */
+
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.state-block--error { color: var(--color-danger); }
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.skeleton-row {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #eceef0 25%, #f5f6f7 37%, #eceef0 63%);
+  background-size: 400% 100%;
+  animation: skeleton 1.4s ease infinite;
+}
+
+@keyframes skeleton {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* ---------- Pagination ---------- */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.pagination__controls {
+  display: flex;
+  gap: 6px;
+}

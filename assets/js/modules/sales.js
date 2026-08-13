@@ -1,0 +1,550 @@
+/**
+ * modules/sales.js — Modul Penjualan (PRD section 31-38).
+ *
+ * Alur transaksi (section 34): pilih customer -> pilih barang -> harga
+ * otomatis dari kategori customer -> boleh override jika Boleh_Edit_Harga
+ * true (section 17-19) -> qty -> subtotal -> total -> simpan. Backend
+ * (createSale di mockRepository) yang menghitung ulang & memvalidasi harga —
+ * frontend hanya mengirim override bila memang diizinkan, jadi tidak ada
+ * business logic harga yang "dipercaya begitu saja" dari klien.
+ */
+
+import Api from "../core/api.js";
+import { toast } from "../components/toast.js";
+import { openModal } from "../components/modal.js";
+import { createDataTable } from "../components/table.js";
+import { createPagination } from "../components/pagination.js";
+import { scanProduct } from "../components/scanner.js";
+import { debounce, formatRupiah, formatDateTime, escapeHtml, statusBayarBadge } from "../core/utils.js";
+
+const STATUS_OPTIONS = ["Lunas", "Belum Lunas", "Sebagian"]; // PRD section 37, dapat dikembangkan
+const METODE_OPTIONS = ["Cash", "Transfer", "QRIS", "Lainnya"]; // PRD section 38
+
+const listState = { page: 1, limit: 20, search: "" };
+
+// ---------------------------------------------------------------------------
+// Detail transaksi (read-only) + cetak Nota/Kwitansi (Phase 7 — PRD section 54-55)
+// ---------------------------------------------------------------------------
+
+async function openSaleDetail(saleRow) {
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `<div class="skeleton-row"></div>`;
+  openModal({ title: `Transaksi ${saleRow.ID_Trx}`, bodyNode: wrap, hideFooter: true, size: "lg" });
+
+  try {
+    const res = await Api.get(`/sales/${saleRow.ID_Trx}`);
+    const sale = res.data;
+    wrap.innerHTML = `
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:14px;">
+        <a class="btn btn--sm" href="print-nota.html?id=${encodeURIComponent(sale.ID_Trx)}" target="_blank" rel="noopener">🖨️ Cetak Nota</a>
+        <a class="btn btn--sm" href="print-kwitansi.html?id=${encodeURIComponent(sale.ID_Trx)}" target="_blank" rel="noopener">🧾 Cetak Kwitansi</a>
+      </div>
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:16px;">
+        <div>
+          <div class="text-muted" style="font-size:12px;">Customer</div>
+          <div><strong>${escapeHtml(sale.Nama_Customer)}</strong></div>
+        </div>
+        <div>
+          <div class="text-muted" style="font-size:12px;">Tanggal</div>
+          <div>${formatDateTime(sale.Created_At)}</div>
+        </div>
+        <div>
+          <div class="text-muted" style="font-size:12px;">Status Bayar</div>
+          <span class="badge badge--${statusBayarBadge(sale.Status_Bayar)}">${escapeHtml(sale.Status_Bayar)}</span>
+        </div>
+        <div>
+          <div class="text-muted" style="font-size:12px;">Metode Bayar</div>
+          <div>${escapeHtml(sale.Metode_Bayar)}</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Barang</th>
+              <th style="text-align:right;">Qty</th>
+              <th style="text-align:right;">Harga</th>
+              <th style="text-align:right;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sale.Items.map(
+              (i) => `<tr>
+                <td>${escapeHtml(i.Nama_Barang)}</td>
+                <td style="text-align:right;">${i.Qty}</td>
+                <td style="text-align:right;">${formatRupiah(i.Harga_Satuan)}</td>
+                <td style="text-align:right;">${formatRupiah(i.Subtotal)}</td>
+              </tr>`
+            ).join("")}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align:right;"><strong>TOTAL</strong></td>
+              <td style="text-align:right;"><strong>${formatRupiah(sale.Total)}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      ${sale.Catatan ? `<div class="text-muted" style="margin-top:12px;">Catatan: ${escapeHtml(sale.Catatan)}</div>` : ""}
+    `;
+  } catch (err) {
+    wrap.innerHTML = `<div class="text-danger">Gagal memuat detail transaksi.</div>`;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Transaksi Baru — customer picker + product picker + cart
+// ---------------------------------------------------------------------------
+
+function openNewSaleModal({ onSaved }) {
+  const cart = []; // { ID_Barang, Nama_Barang, Stok_Awal, Qty, Harga_Satuan, Harga_Default, Boleh_Edit_Harga }
+  let selectedCustomer = null;
+
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `
+    <div class="field">
+      <label class="field__label">Customer</label>
+      <div id="saleCustomerPicked" style="display:none; align-items:center; justify-content:space-between; gap:8px; padding:9px 12px; border:1px solid var(--color-border); border-radius:var(--radius-sm); background:var(--color-primary-soft);">
+        <div>
+          <strong data-picked-name></strong>
+          <div class="text-muted" style="font-size:12px;" data-picked-kategori></div>
+        </div>
+        <button type="button" class="btn btn--sm" data-change-customer>Ganti</button>
+      </div>
+      <div data-customer-search-wrap>
+        <input class="field__control" type="text" placeholder="Cari nama, HP, atau email customer..." id="saleCustomerSearch" autocomplete="off" />
+        <div id="saleCustomerResults"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label">Tambah Barang <span class="optional" data-item-hint>(pilih customer dulu)</span></label>
+      <div class="input-group">
+        <input class="field__control" type="text" placeholder="Pilih customer dulu" id="saleProductSearch" autocomplete="off" disabled />
+        <button type="button" class="btn" id="saleProductScanBtn" title="Scan barcode" disabled>📷</button>
+      </div>
+      <div id="saleProductResults"></div>
+    </div>
+
+    <div id="saleCartWrap"></div>
+
+    <div style="display:flex; justify-content:flex-end; margin:10px 0 18px; font-size:18px;">
+      <strong>Total: <span id="saleTotal">Rp0</span></strong>
+    </div>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <div class="field" style="flex:1; min-width:160px;">
+        <label class="field__label">Status Pembayaran</label>
+        <select class="field__control" id="saleStatus">
+          ${STATUS_OPTIONS.map((s) => `<option value="${s}">${s}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field" style="flex:1; min-width:160px;">
+        <label class="field__label">Metode Bayar</label>
+        <select class="field__control" id="saleMetode">
+          ${METODE_OPTIONS.map((m) => `<option value="${m}">${m}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field__label">Catatan <span class="optional">(opsional)</span></label>
+      <textarea class="field__control" id="saleCatatan" rows="2"></textarea>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px; padding-top:14px; border-top:1px solid var(--color-border);">
+      <button type="button" class="btn" id="saleCancelBtn">Batal</button>
+      <button type="button" class="btn btn--primary" id="saleSaveBtn">Simpan Transaksi</button>
+    </div>
+  `;
+
+  const close = openModal({ title: "Transaksi Baru", bodyNode: wrap, hideFooter: true, size: "lg" });
+
+  const customerSearchWrap = wrap.querySelector("[data-customer-search-wrap]");
+  const customerPicked = wrap.querySelector("#saleCustomerPicked");
+  const customerSearchInput = wrap.querySelector("#saleCustomerSearch");
+  const customerResults = wrap.querySelector("#saleCustomerResults");
+  const itemHint = wrap.querySelector("[data-item-hint]");
+  const productSearchInput = wrap.querySelector("#saleProductSearch");
+  const productScanBtn = wrap.querySelector("#saleProductScanBtn");
+  const productResults = wrap.querySelector("#saleProductResults");
+  const cartWrap = wrap.querySelector("#saleCartWrap");
+  const totalEl = wrap.querySelector("#saleTotal");
+  const saveBtn = wrap.querySelector("#saleSaveBtn");
+
+  wrap.querySelector("#saleCancelBtn").addEventListener("click", close);
+
+  // ---------- Customer picker ----------
+
+  function pickCustomer(c) {
+    selectedCustomer = c;
+    customerSearchWrap.style.display = "none";
+    customerPicked.style.display = "flex";
+    customerPicked.querySelector("[data-picked-name]").textContent = c.Nama_Customer;
+    customerPicked.querySelector("[data-picked-kategori]").textContent = `Kategori: ${c.Kategori_Pelanggan}`;
+    customerResults.innerHTML = "";
+    customerSearchInput.value = "";
+    itemHint.style.display = "none";
+    productSearchInput.disabled = false;
+    productSearchInput.placeholder = "Cari nama, barcode, atau ID barang...";
+    productScanBtn.disabled = false;
+  }
+
+  customerPicked.querySelector("[data-change-customer]").addEventListener("click", () => {
+    selectedCustomer = null;
+    customerPicked.style.display = "none";
+    customerSearchWrap.style.display = "block";
+    itemHint.style.display = "";
+    productSearchInput.disabled = true;
+    productSearchInput.placeholder = "Pilih customer dulu";
+    productScanBtn.disabled = true;
+  });
+
+  customerSearchInput.addEventListener(
+    "input",
+    debounce(async (e) => {
+      const q = e.target.value.trim();
+      if (!q) {
+        customerResults.innerHTML = "";
+        return;
+      }
+      try {
+        const res = await Api.get("/customers", { search: q, limit: 8 });
+        renderCustomerResults(res.data.filter((r) => r.Aktif));
+      } catch {
+        // biarkan user coba lagi lewat input
+      }
+    }, 300)
+  );
+
+  function renderCustomerResults(rows) {
+    customerResults.innerHTML = "";
+    if (rows.length === 0) {
+      customerResults.innerHTML = `<div class="text-muted" style="padding:8px 2px;">Customer tidak ditemukan.</div>`;
+      return;
+    }
+    rows.forEach((r) => {
+      const item = document.createElement("div");
+      item.className = "search-result-item";
+      item.innerHTML = `<strong>${escapeHtml(r.Nama_Customer)}</strong> <span class="text-muted">(${escapeHtml(r.Kategori_Pelanggan)})</span>`;
+      item.addEventListener("click", () => pickCustomer(r));
+      customerResults.appendChild(item);
+    });
+  }
+
+  // ---------- Product picker ----------
+
+  productSearchInput.addEventListener(
+    "input",
+    debounce(async (e) => {
+      const q = e.target.value.trim();
+      if (!q || !selectedCustomer) {
+        productResults.innerHTML = "";
+        return;
+      }
+      try {
+        const res = await Api.get("/products", { search: q, limit: 8 });
+        renderProductResults(res.data.filter((p) => p.Aktif));
+      } catch {
+        // biarkan user coba lagi lewat input
+      }
+    }, 300)
+  );
+
+  function renderProductResults(rows) {
+    productResults.innerHTML = "";
+    if (rows.length === 0) {
+      productResults.innerHTML = `<div class="text-muted" style="padding:8px 2px;">Barang tidak ditemukan.</div>`;
+      return;
+    }
+    rows.forEach((r) => {
+      const item = document.createElement("div");
+      item.className = "search-result-item";
+      const stokLabel = r.Stok_Awal > 0 ? `stok ${r.Stok_Awal}` : `<span class="text-danger">stok habis</span>`;
+      item.innerHTML = `${escapeHtml(r.Nama_Barang)} <span class="text-muted">— ${stokLabel}</span>`;
+      if (r.Stok_Awal > 0) item.addEventListener("click", () => addToCart(r));
+      else item.style.opacity = "0.5";
+      productResults.appendChild(item);
+    });
+  }
+
+  productScanBtn.addEventListener("click", () => {
+    if (!selectedCustomer) return; // tombol seharusnya disabled, jaga-jaga saja
+    scanProduct({
+      title: "Scan Barang",
+      // Kondisi 2 di PRD section 13 — "1 produk -> langsung pilih" — di sini
+      // artinya langsung masuk keranjang, sama seperti klik hasil pencarian.
+      onFound: (product) => addToCart(product),
+    });
+  });
+
+  async function addToCart(product) {
+    try {
+      const res = await Api.get(`/products/${product.ID_Barang}/prices`);
+      const priceRow = res.data.find((p) => p.Kategori_Pelanggan === selectedCustomer.Kategori_Pelanggan && p.Aktif);
+      if (!priceRow) {
+        toast.error(`Harga ${product.Nama_Barang} untuk kategori ${selectedCustomer.Kategori_Pelanggan} belum diatur.`);
+        return;
+      }
+      const existing = cart.find((i) => i.ID_Barang === product.ID_Barang);
+      if (existing) {
+        if (existing.Qty + 1 > product.Stok_Awal) {
+          toast.error(`Stok ${product.Nama_Barang} tersisa ${product.Stok_Awal}.`);
+          return;
+        }
+        existing.Qty += 1;
+      } else {
+        cart.push({
+          ID_Barang: product.ID_Barang,
+          Nama_Barang: product.Nama_Barang,
+          Stok_Awal: product.Stok_Awal,
+          Qty: 1,
+          Harga_Satuan: priceRow.Harga_Default,
+          Harga_Default: priceRow.Harga_Default,
+          Boleh_Edit_Harga: !!priceRow.Boleh_Edit_Harga,
+        });
+      }
+      productSearchInput.value = "";
+      productResults.innerHTML = "";
+      renderCart();
+    } catch {
+      toast.error("Gagal mengambil harga barang.");
+    }
+  }
+
+  // ---------- Cart ----------
+
+  function renderCart() {
+    if (cart.length === 0) {
+      cartWrap.innerHTML = `<div class="text-muted" style="padding:14px 0;">Belum ada barang ditambahkan.</div>`;
+      totalEl.textContent = formatRupiah(0);
+      saveBtn.disabled = true;
+      return;
+    }
+    saveBtn.disabled = false;
+
+    const table = document.createElement("table");
+    table.className = "data-table";
+    const thead = document.createElement("thead");
+    thead.innerHTML = `<tr><th>Barang</th><th style="width:86px;">Qty</th><th style="width:140px;">Harga</th><th style="text-align:right;">Subtotal</th><th></th></tr>`;
+    const tbody = document.createElement("tbody");
+
+    cart.forEach((item, idx) => {
+      const tr = document.createElement("tr");
+
+      const nameTd = document.createElement("td");
+      nameTd.innerHTML = item.Boleh_Edit_Harga
+        ? `${escapeHtml(item.Nama_Barang)} <span class="badge badge--warning" style="margin-left:4px;">Harga bisa diubah</span>`
+        : escapeHtml(item.Nama_Barang);
+
+      const qtyTd = document.createElement("td");
+      const qtyInput = document.createElement("input");
+      qtyInput.type = "number";
+      qtyInput.min = "1";
+      qtyInput.max = String(item.Stok_Awal);
+      qtyInput.value = item.Qty;
+      qtyInput.className = "field__control";
+      qtyInput.style.padding = "6px 8px";
+      qtyInput.addEventListener("change", () => {
+        let v = Math.max(1, Math.floor(Number(qtyInput.value) || 1));
+        if (v > item.Stok_Awal) {
+          toast.error(`Stok ${item.Nama_Barang} tersisa ${item.Stok_Awal}.`);
+          v = item.Stok_Awal;
+        }
+        item.Qty = v;
+        renderCart();
+      });
+      qtyTd.appendChild(qtyInput);
+
+      const hargaTd = document.createElement("td");
+      if (item.Boleh_Edit_Harga) {
+        const hargaInput = document.createElement("input");
+        hargaInput.type = "number";
+        hargaInput.min = "0";
+        hargaInput.value = item.Harga_Satuan;
+        hargaInput.className = "field__control";
+        hargaInput.style.padding = "6px 8px";
+        hargaInput.addEventListener("change", () => {
+          const v = Number(hargaInput.value);
+          item.Harga_Satuan = isNaN(v) || v < 0 ? item.Harga_Default : v;
+          renderCart();
+        });
+        hargaTd.appendChild(hargaInput);
+      } else {
+        hargaTd.textContent = formatRupiah(item.Harga_Satuan);
+      }
+
+      const subtotalTd = document.createElement("td");
+      subtotalTd.style.textAlign = "right";
+      subtotalTd.textContent = formatRupiah(item.Qty * item.Harga_Satuan);
+
+      const removeTd = document.createElement("td");
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn btn--ghost btn--icon";
+      removeBtn.setAttribute("aria-label", "Hapus");
+      removeBtn.textContent = "✕";
+      removeBtn.addEventListener("click", () => {
+        cart.splice(idx, 1);
+        renderCart();
+      });
+      removeTd.appendChild(removeBtn);
+
+      tr.appendChild(nameTd);
+      tr.appendChild(qtyTd);
+      tr.appendChild(hargaTd);
+      tr.appendChild(subtotalTd);
+      tr.appendChild(removeTd);
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    const tableWrap = document.createElement("div");
+    tableWrap.className = "table-wrap";
+    tableWrap.appendChild(table);
+    cartWrap.innerHTML = "";
+    cartWrap.appendChild(tableWrap);
+
+    const total = cart.reduce((sum, i) => sum + i.Qty * i.Harga_Satuan, 0);
+    totalEl.textContent = formatRupiah(total);
+  }
+
+  renderCart();
+
+  // ---------- Simpan ----------
+
+  saveBtn.addEventListener("click", async () => {
+    if (!selectedCustomer) {
+      toast.error("Pilih customer terlebih dahulu.");
+      return;
+    }
+    if (cart.length === 0) {
+      toast.error("Tambahkan minimal 1 barang.");
+      return;
+    }
+    const payload = {
+      ID_Customer: selectedCustomer.ID_Customer,
+      Items: cart.map((i) => ({
+        ID_Barang: i.ID_Barang,
+        Qty: i.Qty,
+        // Hanya kirim override jika barang ini memang boleh diedit manual —
+        // backend tetap memvalidasi ulang (PRD section 17, 35).
+        Harga_Satuan: i.Boleh_Edit_Harga ? i.Harga_Satuan : undefined,
+      })),
+      Status_Bayar: wrap.querySelector("#saleStatus").value,
+      Metode_Bayar: wrap.querySelector("#saleMetode").value,
+      Catatan: wrap.querySelector("#saleCatatan").value,
+    };
+
+    saveBtn.disabled = true;
+    const originalLabel = saveBtn.textContent;
+    saveBtn.textContent = "Menyimpan...";
+    try {
+      await Api.post("/sales", payload);
+      toast.success("Transaksi tersimpan.");
+      close();
+      onSaved();
+    } catch (err) {
+      toast.error(err.message || "Gagal menyimpan transaksi.");
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalLabel;
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Entry point halaman
+// ---------------------------------------------------------------------------
+
+export function initSales() {
+  const root = document.querySelector("#salesRoot");
+  if (!root) return;
+
+  root.innerHTML = `
+    <div class="card__header">
+      <div class="search-input">
+        <span>🔍</span>
+        <input type="text" placeholder="Cari ID transaksi atau customer..." id="saleSearch" />
+      </div>
+      <button class="btn btn--primary" id="addSaleBtn">+ Transaksi Baru</button>
+    </div>
+    <div id="salesTable"></div>
+    <div id="salesPagination"></div>
+  `;
+
+  const table = createDataTable({
+    container: document.querySelector("#salesTable"),
+    emptyMessage: "Belum ada transaksi penjualan.",
+    emptyAction: { label: "+ Transaksi Baru", onClick: () => openAdd() },
+    columns: [
+      { key: "ID_Trx", label: "ID Transaksi" },
+      { key: "Tanggal", label: "Tanggal" },
+      { key: "Nama_Customer", label: "Customer" },
+      { key: "Total", label: "Total", align: "right", render: (r) => formatRupiah(r.Total) },
+      {
+        key: "Status_Bayar",
+        label: "Status Bayar",
+        render: (r) => `<span class="badge badge--${statusBayarBadge(r.Status_Bayar)}">${escapeHtml(r.Status_Bayar)}</span>`,
+      },
+      { key: "Metode_Bayar", label: "Metode" },
+    ],
+    rowActions: (row) => {
+      const wrap = document.createElement("div");
+      wrap.style.display = "flex";
+      wrap.style.gap = "6px";
+      wrap.style.justifyContent = "flex-end";
+
+      const viewBtn = document.createElement("button");
+      viewBtn.className = "btn btn--sm";
+      viewBtn.textContent = "Lihat";
+      viewBtn.addEventListener("click", () => openSaleDetail(row));
+
+      const printLink = document.createElement("a");
+      printLink.className = "btn btn--sm";
+      printLink.textContent = "🖨️ Cetak";
+      printLink.href = `print-nota.html?id=${encodeURIComponent(row.ID_Trx)}`;
+      printLink.target = "_blank";
+      printLink.rel = "noopener";
+
+      wrap.appendChild(viewBtn);
+      wrap.appendChild(printLink);
+      return wrap;
+    },
+  });
+
+  const pager = createPagination({
+    container: document.querySelector("#salesPagination"),
+    onChange: (page) => {
+      listState.page = page;
+      load();
+    },
+  });
+
+  function openAdd() {
+    openNewSaleModal({ onSaved: load });
+  }
+
+  async function load() {
+    table.setLoading();
+    try {
+      const res = await Api.get("/sales", { search: listState.search, page: listState.page, limit: listState.limit });
+      table.setRows(res.data);
+      pager.update(res.pagination);
+    } catch (err) {
+      table.setError("Gagal memuat data transaksi.", load);
+    }
+  }
+
+  document.querySelector("#addSaleBtn").addEventListener("click", () => openAdd());
+  document.querySelector("#saleSearch").addEventListener(
+    "input",
+    debounce((e) => {
+      listState.search = e.target.value;
+      listState.page = 1;
+      load();
+    }, 350)
+  );
+
+  load();
+}

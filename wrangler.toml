@@ -1,0 +1,10 @@
+name = "toko-grosir-sihombing"
+pages_build_output_dir = "."
+compatibility_date = "2024-01-01"
+
+# Phase 2+: tambahkan secrets Google Service Account di sini TIDAK dengan menaruh
+# nilainya di file ini. Gunakan:
+#   wrangler pages secret put GOOGLE_SERVICE_ACCOUNT_EMAIL
+#   wrangler pages secret put GOOGLE_PRIVATE_KEY
+#   wrangler pages secret put GOOGLE_SHEETS_ID
+# (PRD section 61: credential tidak boleh berada di frontend / kode sumber.)

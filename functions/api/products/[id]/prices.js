@@ -7,12 +7,12 @@
  * lewat konteks barangnya — sesuai alur UI di section 16-18 (pilih barang -> atur harga).
  */
 
-import { googleSheetsRepository, RepoError } from "../../../repositories/googleSheetsRepository.js";
+import { createGoogleSheetsRepository, RepoError } from "../../../repositories/googleSheetsRepository.js";
 import { ok, fail, failFromRepoError } from "../../_respond.js";
 
-const repo = googleSheetsRepository;
 
 export async function onRequestGet(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
   try {
     const rows = await repo.listPricesForProduct(context.params.id);
     return ok(rows);
@@ -23,6 +23,7 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPut(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
   let body;
   try {
     body = await context.request.json();

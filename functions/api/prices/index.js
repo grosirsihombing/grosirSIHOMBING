@@ -8,7 +8,7 @@
  */
 
 import {
-  googleSheetsRepository,
+  createGoogleSheetsRepository,
   RepoError,
 } from "../../repositories/googleSheetsRepository.js";
 
@@ -19,6 +19,8 @@ import {
 } from "../_respond.js";
 
 export async function onRequestGet(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
+
   const url = new URL(context.request.url);
 
   const ID_Barang =
@@ -26,7 +28,7 @@ export async function onRequestGet(context) {
 
   try {
     const data =
-      await googleSheetsRepository.listPrices(ID_Barang);
+      await repo.listPrices(ID_Barang);
 
     return ok(data);
   } catch (err) {
@@ -43,6 +45,8 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPost(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
+
   let body;
 
   try {
@@ -57,7 +61,7 @@ export async function onRequestPost(context) {
 
   try {
     const data =
-      await googleSheetsRepository.updatePrice(body);
+      await repo.updatePrice(body);
 
     return ok(data);
   } catch (err) {

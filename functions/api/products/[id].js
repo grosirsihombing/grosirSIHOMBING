@@ -7,15 +7,17 @@
  */
 
 import {
-  googleSheetsRepository,
+  createGoogleSheetsRepository,
   RepoError,
 } from "../../repositories/googleSheetsRepository.js";
 
 import { ok, fail, failFromRepoError } from "../_respond.js";
 
 export async function onRequestGet(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
+
   try {
-    const row = await googleSheetsRepository.getProduct(context.params.id);
+    const row = await repo.getProduct(context.params.id);
     return ok(row);
   } catch (err) {
     if (err instanceof RepoError) return failFromRepoError(err);
@@ -29,6 +31,8 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPut(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
+
   let body;
 
   try {
@@ -42,7 +46,7 @@ export async function onRequestPut(context) {
   }
 
   try {
-    const row = await googleSheetsRepository.updateProduct(
+    const row = await repo.updateProduct(
       context.params.id,
       body
     );
@@ -60,8 +64,10 @@ export async function onRequestPut(context) {
 }
 
 export async function onRequestDelete(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
+
   try {
-    const row = await googleSheetsRepository.updateProduct(
+    const row = await repo.updateProduct(
       context.params.id,
       { Aktif: false }
     );

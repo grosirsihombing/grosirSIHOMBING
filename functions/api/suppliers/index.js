@@ -4,12 +4,12 @@
  *        POST /api/suppliers
  */
 
-import { googleSheetsRepository, RepoError } from "../../repositories/googleSheetsRepository.js";
+import { createGoogleSheetsRepository, RepoError } from "../../repositories/googleSheetsRepository.js";
 import { okList, ok, fail, failFromRepoError } from "../_respond.js";
 
-const repo = googleSheetsRepository;
 
 export async function onRequestGet(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
   const url = new URL(context.request.url);
   const search = url.searchParams.get("search") || "";
   const page = url.searchParams.get("page") || "1";
@@ -20,6 +20,7 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPost(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
   let body;
   try {
     body = await context.request.json();

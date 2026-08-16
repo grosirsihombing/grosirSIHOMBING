@@ -17,14 +17,14 @@
  */
 
 import {
-  googleSheetsRepository,
+  createGoogleSheetsRepository,
   RepoError,
 } from "../../repositories/googleSheetsRepository.js";
 import { ok, fail, failFromRepoError } from "../_respond.js";
 
-const repo = googleSheetsRepository;
 
 export async function onRequestPost(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
   let body;
   try {
     body = await context.request.json();

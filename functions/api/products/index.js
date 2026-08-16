@@ -7,7 +7,7 @@
  */
 
 import {
-  googleSheetsRepository,
+  createGoogleSheetsRepository,
   RepoError,
 } from "../../repositories/googleSheetsRepository.js";
 
@@ -19,6 +19,8 @@ import {
 } from "../_respond.js";
 
 export async function onRequestGet(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
+
   const url = new URL(context.request.url);
 
   const search = url.searchParams.get("search") || "";
@@ -28,7 +30,7 @@ export async function onRequestGet(context) {
 
   try {
     const { data, pagination } =
-      await googleSheetsRepository.listProducts({
+      await repo.listProducts({
         page,
         limit,
         search,
@@ -52,6 +54,8 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPost(context) {
+  const repo = createGoogleSheetsRepository(context.env.GROSIR_CACHE);
+
   let body;
 
   try {
@@ -66,7 +70,7 @@ export async function onRequestPost(context) {
 
   try {
     const row =
-      await googleSheetsRepository.createProduct(body);
+      await repo.createProduct(body);
 
     return ok(row);
   } catch (err) {

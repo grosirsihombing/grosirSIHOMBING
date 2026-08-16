@@ -8,10 +8,10 @@
  * tahu barang mana yang perlu direstok.
  */
 
-import { mockRepository } from "../../repositories/mockRepository.js";
+import { googleSheetsRepository } from "../../repositories/googleSheetsRepository.js";
 import { okList } from "../_respond.js";
 
-const repo = mockRepository;
+const repo = googleSheetsRepository;
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);

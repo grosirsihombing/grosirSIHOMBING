@@ -7,10 +7,10 @@
  * lewat konteks barangnya — sesuai alur UI di section 16-18 (pilih barang -> atur harga).
  */
 
-import { mockRepository, RepoError } from "../../../repositories/mockRepository.js";
+import { googleSheetsRepository, RepoError } from "../../../repositories/googleSheetsRepository.js";
 import { ok, fail, failFromRepoError } from "../../_respond.js";
 
-const repo = mockRepository;
+const repo = googleSheetsRepository;
 
 export async function onRequestGet(context) {
   try {

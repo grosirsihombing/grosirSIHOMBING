@@ -14,10 +14,14 @@
  * negatif ditolak — histori tetap harus bisa ditelusuri (section 42).
  */
 
-import { mockRepository, RepoError } from "../../repositories/mockRepository.js";
+import {
+  googleSheetsRepository,
+  RepoError,
+} from "../../repositories/googleSheetsRepository.js";
+
 import { ok, fail, failFromRepoError } from "../_respond.js";
 
-const repo = mockRepository;
+const repo = googleSheetsRepository;
 
 export async function onRequestPost(context) {
   let body;

@@ -4,10 +4,10 @@
  *        POST /api/suppliers
  */
 
-import { mockRepository, RepoError } from "../../repositories/mockRepository.js";
+import { googleSheetsRepository, RepoError } from "../../repositories/googleSheetsRepository.js";
 import { okList, ok, fail, failFromRepoError } from "../_respond.js";
 
-const repo = mockRepository;
+const repo = googleSheetsRepository;
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);

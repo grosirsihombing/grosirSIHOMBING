@@ -1,0 +1,32 @@
+Master_Barang
+Harga_Barang
+Customer
+Supplier
+Stok_Masuk
+Stok_Adjustment
+Penjualan
+Detail_Penjualan
+
+Master_Barang = 
+ID_Barang	Barcode	Nama_Barang	Tipe_Komoditi	Stok_Awal	Aktif	Created_At	Updated_At
+
+Harga_Barang
+ID_Harga	ID_Barang	Kategori_Pelanggan	Harga_Default	Boleh_Edit_Harga	Aktif	Updated_At																			
+
+Customer
+ID_Customer	Nama_Customer	No_HP	Email	Alamat	Catatan	Aktif	Created_At	Updated_At																	
+
+Supplier
+ID_Supplier	Nama_Supplier	No_HP	Email	Alamat	Catatan	Aktif	Created_At	Updated_At																	
+
+Stok_Masuk = 
+ID_Stok_Masuk	Tanggal	ID_Barang	Qty_Dus_Masuk	ID_Supplier	Harga_Beli	Catatan	Created_At																		
+
+Stok_Adjustment = 
+ID_Adjustment	Tanggal	ID_Barang	Qty_Penyesuaian	Alasan	Created_At																				
+
+Penjualan = 
+ID_Trx	Tanggal	ID_Customer	Kategori_Pelanggan	Total	Status_Bayar	Metode_Bayar	Catatan	Aktif	Created_At	Updated_At															
+
+Detail_Penjualan = 
+ID_Detail	ID_Trx	ID_Barang	Qty	Harga_Satuan	Subtotal																				

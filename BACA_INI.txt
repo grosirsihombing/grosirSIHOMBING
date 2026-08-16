@@ -1,0 +1,50 @@
+CARA PAKAI
+==========
+Timpa 6 file ini di project VS Code Anda dengan file yang sama persis dari
+zip ini (path-nya sudah sesuai struktur folder project Anda, tinggal
+copy-paste / replace):
+
+  functions/repositories/googleSheetsRepository.js
+  functions/api/customers/index.js
+  functions/api/customers/[id].js
+  functions/api/suppliers/index.js
+  functions/api/suppliers/[id].js
+  functions/api/products/[id]/prices.js
+  functions/api/sales/[id].js
+
+Setelah itu deploy ulang Cloudflare Pages Anda seperti biasa (git push /
+wrangler pages deploy — TIDAK ada hubungannya dengan Apps Script, jadi
+tidak perlu "New version" di Apps Script untuk perbaikan ini).
+
+PENYEBAB
+========
+6 file di atas masih import `mockRepository` (data sementara di memori
+Worker, hilang tiap restart/redeploy) padahal seharusnya sudah pakai
+`googleSheetsRepository` (data asli ke Google Sheets) — sama seperti
+functions/api/sales/index.js yang sudah benar dari awal.
+
+Buktinya: log GET /api/customers 26ms yang Anda kirim sebelumnya —
+terlalu cepat untuk round-trip ke Apps Script (yang sekarang di kisaran
+4 detik), tandanya request itu tidak pernah keluar dari Worker sama
+sekali.
+
+`googleSheetsRepository.js` sendiri ternyata memang belum pernah punya
+fungsi untuk Customer/Supplier/detail-Penjualan/harga-per-barang — jadi
+saya tambahkan semuanya (listCustomers, getCustomer, createCustomer,
+updateCustomer, listSuppliers, getSupplier, createSupplier,
+updateSupplier, getSale, updateSaleStatus, listPricesForProduct,
+upsertPrice), lalu 6 file endpoint itu saya arahkan ke fungsi baru
+tersebut.
+
+BELUM SEMPAT DIPERBAIKI (masih pakai mockRepository, sama pola bugnya)
+========================================================================
+- functions/api/inventory/movements.js  (riwayat pergerakan stok gabungan)
+- functions/api/dashboard/summary.js    (ringkasan angka di Dashboard)
+
+Dua ini butuh sedikit desain tambahan di sisi Apps Script (belum ada
+endpoint gabungan buat "movements", dan field yang dikembalikan
+getDashboard_ belum cocok 1:1 sama yang dibaca frontend Dashboard) —
+saya tidak mau buru-buru menebak, kabari saja kalau mau saya lanjutkan.
+
+TIDAK ADA PERUBAHAN LAIN. Fungsi-fungsi lama di googleSheetsRepository.js
+(listProducts, createProduct, dst) tidak disentuh sama sekali.

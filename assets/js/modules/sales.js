@@ -349,8 +349,14 @@ function openNewSaleModal({ onSaved }) {
         return;
       }
       try {
-        const res = await Api.get("/products", { search: q, limit: 8 });
-        renderProductResults(res.data.filter((p) => p.Aktif));
+        const res = await Api.get("/inventory", {
+  search: q,
+  limit: 8,
+});
+
+renderProductResults(
+  res.data.filter((p) => p.Aktif)
+);
       } catch {
         // biarkan user coba lagi lewat input
       }
@@ -364,14 +370,29 @@ function openNewSaleModal({ onSaved }) {
       return;
     }
     rows.forEach((r) => {
-      const item = document.createElement("div");
-      item.className = "search-result-item";
-      const stokLabel = r.Stok_Awal > 0 ? `stok ${r.Stok_Awal}` : `<span class="text-danger">stok habis</span>`;
-      item.innerHTML = `${escapeHtml(r.Nama_Barang)} <span class="text-muted">— ${stokLabel}</span>`;
-      if (r.Stok_Awal > 0) item.addEventListener("click", () => addToCart(r));
-      else item.style.opacity = "0.5";
-      productResults.appendChild(item);
-    });
+  const stok = Number(r.Stok_Saat_Ini || 0);
+
+  const item = document.createElement("div");
+  item.className = "search-result-item";
+
+  const stokLabel =
+    stok > 0
+      ? `stok ${stok}`
+      : `<span class="text-danger">stok habis</span>`;
+
+  item.innerHTML = `
+    ${escapeHtml(r.Nama_Barang)}
+    <span class="text-muted">— ${stokLabel}</span>
+  `;
+
+  if (stok > 0) {
+    item.addEventListener("click", () => addToCart(r));
+  } else {
+    item.style.opacity = "0.5";
+  }
+
+  productResults.appendChild(item);
+});
   }
 
   productScanBtn.addEventListener("click", () => {
@@ -385,38 +406,65 @@ function openNewSaleModal({ onSaved }) {
   });
 
   async function addToCart(product) {
-    try {
-      const res = await Api.get(`/products/${product.ID_Barang}/prices`);
-      const priceRow = res.data.find((p) => p.Kategori_Pelanggan === selectedCategory && p.Aktif);
-      if (!priceRow) {
-        toast.error(`Harga ${product.Nama_Barang} untuk kategori ${selectedCategory} belum diatur.`);
+  try {
+    const stokTersedia = Number(product.Stok_Saat_Ini || 0);
+
+    if (stokTersedia <= 0) {
+      toast.error(`Stok ${product.Nama_Barang} habis.`);
+      return;
+    }
+
+    const res = await Api.get("/prices", {
+      ID_Barang: product.ID_Barang,
+    });
+
+    const priceRow = res.data.find(
+      (p) =>
+        p.Kategori_Pelanggan === selectedCategory &&
+        p.Aktif
+    );
+
+    if (!priceRow) {
+      toast.error(
+        `Harga ${product.Nama_Barang} untuk kategori ${selectedCategory} belum diatur.`
+      );
+      return;
+    }
+
+    const existing = cart.find(
+      (i) => i.ID_Barang === product.ID_Barang
+    );
+
+    if (existing) {
+      if (existing.Qty + 1 > stokTersedia) {
+        toast.error(
+          `Stok ${product.Nama_Barang} tersisa ${stokTersedia}.`
+        );
         return;
       }
-      const existing = cart.find((i) => i.ID_Barang === product.ID_Barang);
-      if (existing) {
-        if (existing.Qty + 1 > product.Stok_Awal) {
-          toast.error(`Stok ${product.Nama_Barang} tersisa ${product.Stok_Awal}.`);
-          return;
-        }
-        existing.Qty += 1;
-      } else {
-        cart.push({
-          ID_Barang: product.ID_Barang,
-          Nama_Barang: product.Nama_Barang,
-          Stok_Awal: product.Stok_Awal,
-          Qty: 1,
-          Harga_Satuan: priceRow.Harga_Default,
-          Harga_Default: priceRow.Harga_Default,
-          Boleh_Edit_Harga: !!priceRow.Boleh_Edit_Harga,
-        });
-      }
-      productSearchInput.value = "";
-      productResults.innerHTML = "";
-      renderCart();
-    } catch {
-      toast.error("Gagal mengambil harga barang.");
+
+      existing.Qty += 1;
+    } else {
+      cart.push({
+        ID_Barang: product.ID_Barang,
+        Nama_Barang: product.Nama_Barang,
+        Stok_Saat_Ini: stokTersedia,
+        Qty: 1,
+        Harga_Satuan: priceRow.Harga_Default,
+        Harga_Default: priceRow.Harga_Default,
+        Boleh_Edit_Harga: !!priceRow.Boleh_Edit_Harga,
+      });
     }
+
+    productSearchInput.value = "";
+    productResults.innerHTML = "";
+
+    renderCart();
+  } catch (err) {
+    console.error(err);
+    toast.error("Gagal mengambil harga barang.");
   }
+}
 
   // ---------- Cart ----------
 
@@ -545,7 +593,7 @@ function openNewSaleModal({ onSaved }) {
         // Kategori pelanggan adalah milik transaksi, bukan master customer.
       // Hanya kirim override jika barang ini memang boleh diedit manual —
         // backend tetap memvalidasi ulang (PRD section 17, 35).
-        Harga_Satuan: i.Boleh_Edit_Harga ? i.Harga_Satuan : undefined,
+        Harga_Satuan: i.Harga_Satuan,
       })),
       Status_Bayar: wrap.querySelector("#saleStatus").value,
       Metode_Bayar: wrap.querySelector("#saleMetode").value,

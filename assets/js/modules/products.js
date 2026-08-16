@@ -95,24 +95,47 @@ function priceForm(kategori, existing) {
 
 function openPriceModal({ productId, kategori, existing, onSaved }) {
   const form = priceForm(kategori, existing);
+
   openModal({
-    title: existing ? `Edit Harga — ${existing.Kategori_Pelanggan}` : "Tambah Harga Kategori",
+    title: existing
+      ? `Edit Harga — ${existing.Kategori_Pelanggan}`
+      : "Tambah Harga Kategori",
+
     bodyNode: form,
     confirmLabel: "Simpan",
+
     onConfirm: async () => {
       if (!form.reportValidity()) throw new Error("invalid");
+
       const fd = new FormData(form);
+
       const payload = {
+        ID_Barang: productId,
         Kategori_Pelanggan: fd.get("Kategori_Pelanggan"),
         Harga_Default: Number(fd.get("Harga_Default")),
-        Boleh_Edit_Harga: fd.get("Boleh_Edit_Harga") === "on",
+        Boleh_Edit_Harga:
+          fd.get("Boleh_Edit_Harga") === "on",
+        Aktif: true,
       };
+
       try {
-        await Api.put(`/products/${productId}/prices`, payload);
+        if (existing?.ID_Harga) {
+          // EDIT harga yang sudah ada
+          await Api.post("/prices", {
+            ...payload,
+            ID_Harga: existing.ID_Harga,
+          });
+        } else {
+          // TAMBAH harga baru
+          await Api.post("/prices", payload);
+        }
+
         toast.success("Harga tersimpan.");
         onSaved();
       } catch (err) {
-        toast.error(err.message || "Gagal menyimpan harga.");
+        toast.error(
+          err.message || "Gagal menyimpan harga."
+        );
         throw err;
       }
     },
@@ -135,7 +158,9 @@ async function openPricesPanel(product) {
   async function refresh() {
     list.innerHTML = `<div class="skeleton-row" style="margin-bottom:8px;"></div>`;
     try {
-      const res = await Api.get(`/products/${product.ID_Barang}/prices`);
+      const res = await Api.get("/prices", {
+  ID_Barang: product.ID_Barang,
+});
       const rows = res.data;
       list.innerHTML = "";
       if (rows.length === 0) {

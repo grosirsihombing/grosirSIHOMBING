@@ -9,6 +9,9 @@
     "deploy": "wrangler pages deploy ."
   },
   "devDependencies": {
-    "wrangler": "^3.78.0"
+    "wrangler": "^4.124.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.3"
   }
 }

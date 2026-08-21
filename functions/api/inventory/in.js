@@ -65,7 +65,8 @@ export async function onRequestPost(context) {
     }
 
     const today = new Date().toISOString().slice(0, 10);
-    const date = /^\d{4}-\d{2}-\d{2}$/.test(payload.Tanggal || "") ? payload.Tanggal : today;
+    const dateStr = /^\d{4}-\d{2}-\d{2}$/.test(payload.Tanggal || "") ? payload.Tanggal : today;
+    const dateIso = new Date(dateStr).toISOString();
 
     // Catat Stock In
     const { data: stockInRow, error: inErr } = await supabase
@@ -74,8 +75,8 @@ export async function onRequestPost(context) {
         product_id: productId,
         supplier_id: supplierId,
         quantity: qty,
-        purchase_price: hargaBeli,
-        date: date,
+        purchase_price: hargaBeli !== null ? hargaBeli : 0,
+        date: dateIso,
         notes: payload.Catatan ? String(payload.Catatan).trim() : "",
       })
       .select()

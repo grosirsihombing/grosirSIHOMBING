@@ -370,15 +370,15 @@ renderProductResults(
       return;
     }
     rows.forEach((r) => {
-  const stok = Number(r.Stok_Saat_Ini || 0);
+      const stok = Number(r.Stok_Saat_Ini !== undefined ? r.Stok_Saat_Ini : (r.current_stock !== undefined ? r.current_stock : (r.Stok_Awal || 0)));
 
-  const item = document.createElement("div");
-  item.className = "search-result-item";
+      const item = document.createElement("div");
+      item.className = "search-result-item";
 
-  const stokLabel =
-    stok > 0
-      ? `stok ${stok}`
-      : `<span class="text-danger">stok habis</span>`;
+      const stokLabel =
+        stok > 0
+          ? `stok ${stok}`
+          : `<span class="text-danger">stok habis</span>`;
 
   item.innerHTML = `
     ${escapeHtml(r.Nama_Barang)}
@@ -407,7 +407,7 @@ renderProductResults(
 
   async function addToCart(product) {
   try {
-    const stokTersedia = Number(product.Stok_Saat_Ini || 0);
+    const stokTersedia = Number(product.Stok_Saat_Ini !== undefined ? product.Stok_Saat_Ini : (product.current_stock !== undefined ? product.current_stock : (product.Stok_Awal || 0)));
 
     if (stokTersedia <= 0) {
       toast.error(`Stok ${product.Nama_Barang} habis.`);

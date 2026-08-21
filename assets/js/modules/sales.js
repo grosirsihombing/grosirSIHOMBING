@@ -485,21 +485,21 @@ renderProductResults(
       const tr = document.createElement("tr");
 
       const nameTd = document.createElement("td");
-      nameTd.innerHTML = `${escapeHtml(item.Nama_Barang)} <span class="badge badge--warning" style="margin-left:4px;">Harga dapat diedit</span>`;
+      nameTd.innerHTML = `${escapeHtml(item.Nama_Barang)} ${item.Boleh_Edit_Harga ? '<span class="badge badge--warning" style="margin-left:4px;">Harga dapat diedit</span>' : ""}`;
 
       const qtyTd = document.createElement("td");
       const qtyInput = document.createElement("input");
       qtyInput.type = "number";
       qtyInput.min = "1";
-      qtyInput.max = String(item.Stok_Awal);
+      qtyInput.max = String(item.Stok_Saat_Ini);
       qtyInput.value = item.Qty;
       qtyInput.className = "field__control";
       qtyInput.style.padding = "6px 8px";
       qtyInput.addEventListener("change", () => {
         let v = Math.max(1, Math.floor(Number(qtyInput.value) || 1));
-        if (v > item.Stok_Awal) {
-          toast.error(`Stok ${item.Nama_Barang} tersisa ${item.Stok_Awal}.`);
-          v = item.Stok_Awal;
+        if (v > item.Stok_Saat_Ini) {
+          toast.error(`Stok ${item.Nama_Barang} tersisa ${item.Stok_Saat_Ini}.`);
+          v = item.Stok_Saat_Ini;
         }
         item.Qty = v;
         renderCart();
@@ -514,7 +514,8 @@ renderProductResults(
       hargaInput.value = item.Harga_Satuan;
       hargaInput.className = "field__control";
       hargaInput.style.padding = "6px 8px";
-      hargaInput.title = "Harga transaksi dapat diubah tanpa mengubah harga master";
+      hargaInput.title = item.Boleh_Edit_Harga ? "Harga transaksi dapat diubah tanpa mengubah harga master" : "Harga untuk kategori ini terkunci";
+      hargaInput.disabled = !item.Boleh_Edit_Harga;
       hargaInput.addEventListener("change", () => {
         const v = Number(hargaInput.value);
         if (!Number.isFinite(v) || v < 0) {

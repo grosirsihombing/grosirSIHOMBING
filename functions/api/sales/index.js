@@ -140,7 +140,11 @@ export async function onRequestPost(context) {
       // Calculate stock dynamically to ensure consistency with inventory movements
       const { data: stockInRows } = await supabase.from("stock_in").select("quantity").eq("product_id", product.id);
       const { data: adjRows } = await supabase.from("stock_adjustments").select("quantity").eq("product_id", product.id);
-      const { data: saleRows } = await supabase.from("sale_items").select("quantity").eq("product_id", product.id);
+      const { data: saleRows } = await supabase
+        .from("sale_items")
+        .select("quantity, sales!inner(active)")
+        .eq("product_id", product.id)
+        .eq("sales.active", true);
 
       const totalIn = (stockInRows || []).reduce((sum, r) => sum + Number(r.quantity), 0);
       const totalAdj = (adjRows || []).reduce((sum, r) => sum + Number(r.quantity), 0);

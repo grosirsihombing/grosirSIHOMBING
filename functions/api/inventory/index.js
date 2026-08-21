@@ -43,7 +43,8 @@ export async function onRequestGet(context) {
 
     const { data: salesData, error: salesError } = await supabase
       .from("sale_items")
-      .select("product_id, quantity");
+      .select("product_id, quantity, sales!inner(active)")
+      .eq("sales.active", true);
 
     if (inError || adjError || salesError) {
       return fail("AGGREGATION_ERROR", "Gagal memproses agregasi data stok.", 500);

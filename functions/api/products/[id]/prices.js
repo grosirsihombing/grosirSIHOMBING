@@ -31,11 +31,19 @@ export async function onRequestGet(context) {
       return fail("PRICES_QUERY_ERROR", priceErr.message, 500);
     }
 
+    // Map database snake_case categories to Frontend capitalized formats
+    const categoryMapToFrontend = {
+      "retail": "Retail",
+      "sub_agen": "Sub Agen",
+      "user": "User",
+      "grosir": "Grosir"
+    };
+
     // Map back to legacy field
     const mapped = (rows || []).map(r => ({
       ID_Harga: r.id,
       ID_Barang: r.product_id,
-      Kategori_Pelanggan: r.customer_category,
+      Kategori_Pelanggan: categoryMapToFrontend[r.customer_category] || r.customer_category,
       Harga_Default: r.default_price,
       Boleh_Edit_Harga: r.allow_price_edit,
       Aktif: r.active !== false,
@@ -60,15 +68,28 @@ export async function onRequestPut(context) {
     }
 
     const productId = context.params.id;
-    const kategori = String(payload.Kategori_Pelanggan || "").trim();
+    let kategoriInput = String(payload.Kategori_Pelanggan || "").trim();
     const harga = Number(payload.Harga_Default);
 
-    if (!kategori) {
+    if (!kategoriInput) {
       return fail("VALIDATION_ERROR", "Kategori_Pelanggan wajib diisi.", 400);
     }
     if (isNaN(harga) || harga < 0) {
       return fail("VALIDATION_ERROR", "Harga tidak boleh kurang dari 0.", 400);
     }
+
+    // Map frontend capitalized categories to database snake_case formats
+    const categoryMapToDb = {
+      "Retail": "retail",
+      "Sub Agen": "sub_agen",
+      "User": "user",
+      "Grosir": "grosir",
+      "retail": "retail",
+      "sub_agen": "sub_agen",
+      "user": "user",
+      "grosir": "grosir"
+    };
+    const kategori = categoryMapToDb[kategoriInput] || kategoriInput.toLowerCase();
 
     // Ambil harga existing
     const { data: match, error: matchErr } = await supabase
@@ -111,10 +132,17 @@ export async function onRequestPut(context) {
       result = data;
     }
 
+    const categoryMapToFrontend = {
+      "retail": "Retail",
+      "sub_agen": "Sub Agen",
+      "user": "User",
+      "grosir": "Grosir"
+    };
+
     return ok({
       ID_Harga: result.id,
       ID_Barang: result.product_id,
-      Kategori_Pelanggan: result.customer_category,
+      Kategori_Pelanggan: categoryMapToFrontend[result.customer_category] || result.customer_category,
       Harga_Default: result.default_price,
       Boleh_Edit_Harga: result.allow_price_edit,
       Aktif: result.active !== false,

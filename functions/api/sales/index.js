@@ -217,8 +217,7 @@ export async function onRequestPost(context) {
         payment_method: metode,
         notes: payload.Catatan ? String(payload.Catatan).trim() : "",
         total: calculatedTotal,
-        active: true,
-        customer_id: customerId
+        active: true
       })
       .select("id")
       .single();

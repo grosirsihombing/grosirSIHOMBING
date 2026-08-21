@@ -414,9 +414,7 @@ renderProductResults(
       return;
     }
 
-    const res = await Api.get("/prices", {
-      ID_Barang: product.ID_Barang,
-    });
+    const res = await Api.get(`/products/${product.ID_Barang}/prices`);
 
     const priceRow = res.data.find(
       (p) =>

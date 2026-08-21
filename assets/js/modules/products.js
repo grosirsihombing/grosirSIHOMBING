@@ -74,68 +74,44 @@ function openProductModal({ existing, onSaved }) {
   });
 }
 
-function priceForm(kategori, existing) {
+function priceForm(category, existing) {
   const form = document.createElement("form");
   form.innerHTML = `
     <div class="field">
       <label class="field__label">Kategori Pelanggan</label>
-      <input class="field__control" name="Kategori_Pelanggan" required value="${escapeHtml(kategori || existing?.Kategori_Pelanggan || "")}" ${existing ? "readonly" : ""} />
+      <input class="field__control" name="Kategori_Pelanggan" required readonly value="${escapeHtml(category)}" />
     </div>
     <div class="field">
-      <label class="field__label">Harga Default</label>
+      <label class="field__label">Harga</label>
       <input class="field__control" type="number" min="0" name="Harga_Default" required value="${existing?.Harga_Default ?? 0}" />
     </div>
     <div class="field">
       <label class="field__label"><input type="checkbox" name="Boleh_Edit_Harga" ${existing?.Boleh_Edit_Harga ? "checked" : ""} /> Boleh diedit manual saat transaksi</label>
-      <div class="text-muted" style="font-size:12px; margin-top:4px;">Aktifkan untuk komoditi yang harganya bisa berubah-ubah (mis. isi ulang galon) — PRD section 17.</div>
     </div>
   `;
   return form;
 }
 
-function openPriceModal({ productId, kategori, existing, onSaved }) {
-  const form = priceForm(kategori, existing);
-
+function openPriceModal({ productId, category, existing, onSaved }) {
+  const form = priceForm(category, existing);
   openModal({
-    title: existing
-      ? `Edit Harga — ${existing.Kategori_Pelanggan}`
-      : "Tambah Harga Kategori",
-
+    title: `Harga ${category}`,
     bodyNode: form,
     confirmLabel: "Simpan",
-
     onConfirm: async () => {
       if (!form.reportValidity()) throw new Error("invalid");
-
       const fd = new FormData(form);
-
       const payload = {
-        ID_Barang: productId,
-        Kategori_Pelanggan: fd.get("Kategori_Pelanggan"),
+        Kategori_Pelanggan: category,
         Harga_Default: Number(fd.get("Harga_Default")),
-        Boleh_Edit_Harga:
-          fd.get("Boleh_Edit_Harga") === "on",
-        Aktif: true,
+        Boleh_Edit_Harga: fd.get("Boleh_Edit_Harga") === "on",
       };
-
       try {
-        if (existing?.ID_Harga) {
-          // EDIT harga yang sudah ada
-          await Api.post("/prices", {
-            ...payload,
-            ID_Harga: existing.ID_Harga,
-          });
-        } else {
-          // TAMBAH harga baru
-          await Api.post("/prices", payload);
-        }
-
+        await Api.put(`/products/${productId}/prices`, payload);
         toast.success("Harga tersimpan.");
         onSaved();
       } catch (err) {
-        toast.error(
-          err.message || "Gagal menyimpan harga."
-        );
+        toast.error(err.message || "Gagal menyimpan harga.");
         throw err;
       }
     },
@@ -144,29 +120,19 @@ function openPriceModal({ productId, kategori, existing, onSaved }) {
 
 async function openPricesPanel(product) {
   const wrap = document.createElement("div");
-  wrap.innerHTML = `<div class="text-muted" style="margin-bottom:10px;">Harga per kategori pelanggan untuk <strong>${escapeHtml(product.Nama_Barang)}</strong>.</div>`;
   const list = document.createElement("div");
   wrap.appendChild(list);
-
-  const addBtn = document.createElement("button");
-  addBtn.type = "button";
-  addBtn.className = "btn btn--sm";
-  addBtn.textContent = "+ Kategori Baru";
-  addBtn.style.marginTop = "10px";
-  wrap.appendChild(addBtn);
 
   async function refresh() {
     list.innerHTML = `<div class="skeleton-row" style="margin-bottom:8px;"></div>`;
     try {
-      const res = await Api.get("/prices", {
-  ID_Barang: product.ID_Barang,
-});
-      const rows = res.data;
+      const res = await Api.get(`/products/${product.ID_Barang}/prices`);
+      const categories = ["Retail", "Sub Agen", "User"];
+      const dataMap = new Map(res.data.map(i => [i.Kategori_Pelanggan, i]));
+      
       list.innerHTML = "";
-      if (rows.length === 0) {
-        list.innerHTML = `<div class="text-muted">Belum ada harga untuk barang ini.</div>`;
-      }
-      rows.forEach((row) => {
+      categories.forEach((cat) => {
+        const row = dataMap.get(cat);
         const item = document.createElement("div");
         item.className = "card";
         item.style.marginBottom = "8px";
@@ -175,18 +141,17 @@ async function openPricesPanel(product) {
         item.style.alignItems = "center";
         item.innerHTML = `
           <div>
-            <strong>${escapeHtml(row.Kategori_Pelanggan)}</strong> — ${formatRupiah(row.Harga_Default)}
-            ${row.Boleh_Edit_Harga ? '<span class="badge badge--warning" style="margin-left:6px;">Boleh diedit</span>' : ""}
+            <strong>${cat}</strong>: ${row ? formatRupiah(row.Harga_Default) : "—"}
+            ${row?.Boleh_Edit_Harga ? '<span class="badge badge--warning" style="margin-left:6px;">Boleh diedit</span>' : ""}
           </div>
         `;
-        const editBtn = document.createElement("button");
-        editBtn.type = "button";
-        editBtn.className = "btn btn--sm";
-        editBtn.textContent = "Edit";
-        editBtn.addEventListener("click", () => {
-          openPriceModal({ productId: product.ID_Barang, existing: row, onSaved: refresh });
-        });
-        item.appendChild(editBtn);
+        const btn = document.createElement("button");
+        btn.className = "btn btn--sm";
+        btn.textContent = "Edit";
+        btn.addEventListener("click", () => openPriceModal({ 
+          productId: product.ID_Barang, category: cat, existing: row, onSaved: refresh 
+        }));
+        item.appendChild(btn);
         list.appendChild(item);
       });
     } catch (err) {
@@ -194,16 +159,7 @@ async function openPricesPanel(product) {
     }
   }
 
-  addBtn.addEventListener("click", () => {
-    openPriceModal({ productId: product.ID_Barang, onSaved: refresh });
-  });
-
-  openModal({
-    title: "Kelola Harga",
-    bodyNode: wrap,
-    hideFooter: true,
-  });
-
+  openModal({ title: `Harga ${product.Nama_Barang}`, bodyNode: wrap, hideFooter: true });
   refresh();
 }
 
@@ -303,9 +259,6 @@ export function initProducts() {
 
   document.querySelector("#addProductBtn").addEventListener("click", () => openAdd());
   document.querySelector("#scanProductBtn").addEventListener("click", () => {
-    // Barang nonaktif tetap boleh ditemukan di sini — halaman Barang dipakai
-    // untuk mengelola master data, bukan cuma barang yang sedang dijual
-    // (beda dari sales.js/inventory.js yang hanya menerima barang aktif).
     scanProduct({
       filterAktif: false,
       onFound: (product) => openAdd(product),

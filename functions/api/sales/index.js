@@ -155,12 +155,25 @@ export async function onRequestPost(context) {
         return fail("INSUFFICIENT_STOCK", `Stok ${product.name} tidak cukup (tersisa ${calculatedStock}).`, 400);
       }
 
+      // Map kategori dari UI ke DB format
+      const categoryMapToDb = {
+        "Retail": "retail",
+        "Sub Agen": "sub_agen",
+        "User": "user",
+        "Grosir": "grosir",
+        "retail": "retail",
+        "sub_agen": "sub_agen",
+        "user": "user",
+        "grosir": "grosir"
+      };
+      const dbKategori = categoryMapToDb[kategori] || kategori.toLowerCase();
+
       // Ambil default price
       const { data: priceRow, error: prErr } = await supabase
         .from("product_prices")
         .select("*")
         .eq("product_id", product.id)
-        .eq("customer_category", kategori.toLowerCase())
+        .eq("customer_category", dbKategori)
         .eq("active", true)
         .maybeSingle();
 

@@ -137,8 +137,18 @@ export async function onRequestPost(context) {
         return fail("VALIDATION_ERROR", `Qty untuk ${product.name} harus lebih dari 0.`, 400);
       }
 
-      if ((product.current_stock || 0) < qty) {
-        return fail("INSUFFICIENT_STOCK", `Stok ${product.name} tidak cukup (tersisa ${product.current_stock}).`, 400);
+      // Calculate stock dynamically to ensure consistency with inventory movements
+      const { data: stockInRows } = await supabase.from("stock_in").select("quantity").eq("product_id", product.id);
+      const { data: adjRows } = await supabase.from("stock_adjustments").select("quantity").eq("product_id", product.id);
+      const { data: saleRows } = await supabase.from("sale_items").select("quantity").eq("product_id", product.id);
+
+      const totalIn = (stockInRows || []).reduce((sum, r) => sum + Number(r.quantity), 0);
+      const totalAdj = (adjRows || []).reduce((sum, r) => sum + Number(r.quantity), 0);
+      const totalOut = (saleRows || []).reduce((sum, r) => sum + Number(r.quantity), 0);
+      const calculatedStock = (product.initial_stock || 0) + totalIn + totalAdj - totalOut;
+
+      if (calculatedStock < qty) {
+        return fail("INSUFFICIENT_STOCK", `Stok ${product.name} tidak cukup (tersisa ${calculatedStock}).`, 400);
       }
 
       // Ambil default price
@@ -173,7 +183,7 @@ export async function onRequestPost(context) {
       resolvedItems.push({
         product_id: product.id,
         name: product.name,
-        qty: qty,
+        quantity: qty,
         unit_price: hargaSatuan,
         subtotal: subtotal
       });
@@ -181,8 +191,7 @@ export async function onRequestPost(context) {
 
     // Call Supabase RPC create_sale_atomic
     const rpcParams = {
-      p_customer_name: customer.name,
-      p_customer_category: kategori,
+      p_customer_category: kategori.toLowerCase(),
       p_payment_status: status.toLowerCase(),
       p_payment_method: metode,
       p_notes: payload.Catatan ? String(payload.Catatan).trim() : "",

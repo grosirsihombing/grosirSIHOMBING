@@ -208,19 +208,22 @@ export async function onRequestPost(context) {
 
     // Update customer ID (legacy_id) di table sales karena RPC standard create_sale tidak menerima customer_id (melainkan name)
     // Mari update sales.legacy_id = customerId
-    const saleId = rpcRes.sale_id;
-    await supabase
-      .from("sales")
-      .update({ legacy_id: customerId })
-      .eq("id", saleId);
+    const saleId = typeof rpcRes === "object" && rpcRes !== null ? (rpcRes.sale_id || rpcRes.id) : rpcRes;
+    
+    if (saleId) {
+      await supabase
+        .from("sales")
+        .update({ legacy_id: customerId })
+        .eq("id", saleId);
+    }
 
     const enrichedItems = resolvedItems.map(item => ({
-      ID_Detail: saleId, // dummy or ref
+      ID_Detail: saleId, 
       ID_Trx: saleId,
       ID_Barang: item.product_id,
       Nama_Barang: item.name,
       Kategori_Pelanggan: kategori,
-      Qty: item.qty,
+      Qty: item.quantity,
       Harga_Satuan: item.unit_price,
       Subtotal: item.subtotal
     }));

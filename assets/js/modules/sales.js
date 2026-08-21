@@ -374,25 +374,44 @@ renderProductResults(
 
       const item = document.createElement("div");
       item.className = "search-result-item";
+      item.style.display = "flex";
+      item.style.justifyContent = "space-between";
+      item.style.alignItems = "center";
+      item.style.padding = "8px 12px";
 
       const stokLabel =
         stok > 0
           ? `stok ${stok}`
           : `<span class="text-danger">stok habis</span>`;
 
-  item.innerHTML = `
-    ${escapeHtml(r.Nama_Barang)}
-    <span class="text-muted">— ${stokLabel}</span>
-  `;
+      item.innerHTML = `
+        <div>
+          <strong>${escapeHtml(r.Nama_Barang)}</strong>
+          <span class="text-muted" style="margin-left:6px;">— ${stokLabel}</span>
+        </div>
+      `;
 
-  if (stok > 0) {
-    item.addEventListener("click", () => addToCart(r));
-  } else {
-    item.style.opacity = "0.5";
-  }
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.className = "btn btn--sm btn--primary";
+      addBtn.textContent = "+ Tambah";
+      addBtn.style.padding = "4px 8px";
+      addBtn.style.fontSize = "12px";
 
-  productResults.appendChild(item);
-});
+      if (stok > 0) {
+        addBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          addToCart(r);
+        });
+        item.addEventListener("click", () => addToCart(r));
+      } else {
+        item.style.opacity = "0.5";
+        addBtn.disabled = true;
+      }
+
+      item.appendChild(addBtn);
+      productResults.appendChild(item);
+    });
   }
 
   productScanBtn.addEventListener("click", () => {

@@ -218,7 +218,7 @@ export async function onRequestPost(context) {
         notes: payload.Catatan ? String(payload.Catatan).trim() : "",
         total: calculatedTotal,
         active: true,
-        legacy_id: customerId
+        customer_id: customerId
       })
       .select("id")
       .single();

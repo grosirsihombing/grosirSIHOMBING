@@ -493,27 +493,45 @@ renderProductResults(
       return;
     }
     saveBtn.disabled = false;
-
-    const table = document.createElement("table");
-    table.className = "data-table";
-    const thead = document.createElement("thead");
-    thead.innerHTML = `<tr><th>Barang</th><th style="width:86px;">Qty</th><th style="width:140px;">Harga</th><th style="text-align:right;">Subtotal</th><th></th></tr>`;
-    const tbody = document.createElement("tbody");
+    cartWrap.innerHTML = "";
 
     cart.forEach((item, idx) => {
-      const tr = document.createElement("tr");
+      const card = document.createElement("div");
+      card.style.cssText = "border:1px solid var(--color-border);border-radius:8px;padding:12px;margin-bottom:10px;background:var(--color-surface);";
 
-      const nameTd = document.createElement("td");
-      nameTd.innerHTML = `${escapeHtml(item.Nama_Barang)} ${item.Boleh_Edit_Harga ? '<span class="badge badge--warning" style="margin-left:4px;">Harga dapat diedit</span>' : ""}`;
+      // Row 1: Nama + Hapus
+      const row1 = document.createElement("div");
+      row1.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+      const nameEl = document.createElement("div");
+      nameEl.innerHTML = `<strong style="font-size:14px;">${escapeHtml(item.Nama_Barang)}</strong>` +
+        (item.Boleh_Edit_Harga ? ' <span class="badge badge--warning" style="font-size:11px;">Harga dpt diedit</span>' : "");
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn btn--ghost btn--icon";
+      removeBtn.setAttribute("aria-label", "Hapus");
+      removeBtn.textContent = "✕";
+      removeBtn.style.cssText = "color:var(--color-danger);font-size:16px;padding:4px 8px;flex-shrink:0;";
+      removeBtn.addEventListener("click", () => { cart.splice(idx, 1); renderCart(); });
+      row1.appendChild(nameEl);
+      row1.appendChild(removeBtn);
 
-      const qtyTd = document.createElement("td");
+      // Row 2: Jumlah + Harga side by side
+      const row2 = document.createElement("div");
+      row2.style.cssText = "display:flex;gap:10px;margin-bottom:8px;";
+
+      // Jumlah field
+      const qtyGroup = document.createElement("div");
+      qtyGroup.style.cssText = "flex:1;min-width:0;";
+      const qtyLabel = document.createElement("label");
+      qtyLabel.textContent = "Jumlah";
+      qtyLabel.style.cssText = "display:block;font-size:12px;color:var(--color-text-muted);margin-bottom:4px;font-weight:600;";
       const qtyInput = document.createElement("input");
       qtyInput.type = "number";
       qtyInput.min = "1";
       qtyInput.max = String(item.Stok_Saat_Ini);
       qtyInput.value = item.Qty;
       qtyInput.className = "field__control";
-      qtyInput.style.padding = "6px 8px";
+      qtyInput.style.cssText = "width:100%;font-size:16px;padding:10px 12px;text-align:center;";
       qtyInput.addEventListener("change", () => {
         let v = Math.max(1, Math.floor(Number(qtyInput.value) || 1));
         if (v > item.Stok_Saat_Ini) {
@@ -523,17 +541,23 @@ renderProductResults(
         item.Qty = v;
         renderCart();
       });
-      qtyTd.appendChild(qtyInput);
+      qtyGroup.appendChild(qtyLabel);
+      qtyGroup.appendChild(qtyInput);
 
-      const hargaTd = document.createElement("td");
+      // Harga field
+      const hargaGroup = document.createElement("div");
+      hargaGroup.style.cssText = "flex:1.5;min-width:0;";
+      const hargaLabel = document.createElement("label");
+      hargaLabel.textContent = "Harga Satuan";
+      hargaLabel.style.cssText = "display:block;font-size:12px;color:var(--color-text-muted);margin-bottom:4px;font-weight:600;";
       const hargaInput = document.createElement("input");
       hargaInput.type = "number";
       hargaInput.min = "0";
       hargaInput.step = "100";
       hargaInput.value = item.Harga_Satuan;
       hargaInput.className = "field__control";
-      hargaInput.style.padding = "6px 8px";
-      hargaInput.title = item.Boleh_Edit_Harga ? "Harga transaksi dapat diubah tanpa mengubah harga master" : "Harga untuk kategori ini terkunci";
+      hargaInput.style.cssText = "width:100%;font-size:16px;padding:10px 12px;";
+      hargaInput.title = item.Boleh_Edit_Harga ? "Harga transaksi dapat diubah" : "Harga terkunci";
       hargaInput.disabled = !item.Boleh_Edit_Harga;
       hargaInput.addEventListener("change", () => {
         const v = Number(hargaInput.value);
@@ -545,40 +569,22 @@ renderProductResults(
         item.Harga_Satuan = v;
         renderCart();
       });
-      hargaTd.appendChild(hargaInput);
+      hargaGroup.appendChild(hargaLabel);
+      hargaGroup.appendChild(hargaInput);
 
-      const subtotalTd = document.createElement("td");
-      subtotalTd.style.textAlign = "right";
-      subtotalTd.textContent = formatRupiah(item.Qty * item.Harga_Satuan);
+      row2.appendChild(qtyGroup);
+      row2.appendChild(hargaGroup);
 
-      const removeTd = document.createElement("td");
-      const removeBtn = document.createElement("button");
-      removeBtn.type = "button";
-      removeBtn.className = "btn btn--ghost btn--icon";
-      removeBtn.setAttribute("aria-label", "Hapus");
-      removeBtn.textContent = "✕";
-      removeBtn.addEventListener("click", () => {
-        cart.splice(idx, 1);
-        renderCart();
-      });
-      removeTd.appendChild(removeBtn);
+      // Row 3: Subtotal
+      const row3 = document.createElement("div");
+      row3.style.cssText = "text-align:right;font-size:14px;font-weight:600;color:var(--color-primary);";
+      row3.textContent = `Subtotal: ${formatRupiah(item.Qty * item.Harga_Satuan)}`;
 
-      tr.appendChild(nameTd);
-      tr.appendChild(qtyTd);
-      tr.appendChild(hargaTd);
-      tr.appendChild(subtotalTd);
-      tr.appendChild(removeTd);
-      tbody.appendChild(tr);
+      card.appendChild(row1);
+      card.appendChild(row2);
+      card.appendChild(row3);
+      cartWrap.appendChild(card);
     });
-
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
-    const tableWrap = document.createElement("div");
-    tableWrap.className = "table-wrap";
-    tableWrap.appendChild(table);
-    cartWrap.innerHTML = "";
-    cartWrap.appendChild(tableWrap);
 
     const total = cart.reduce((sum, i) => sum + i.Qty * i.Harga_Satuan, 0);
     totalEl.textContent = formatRupiah(total);

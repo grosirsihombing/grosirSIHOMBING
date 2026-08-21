@@ -65,20 +65,60 @@ export async function onRequestGet(context) {
       .select("*", { count: "exact", head: true })
       .eq("active", true);
 
-    // 4. Total Stock
-    const { data: stockData, error: stErr } = await supabase
+    // 4. Dynamic Stock Calculation
+    // Fetch all active products
+    const { data: allProducts, error: apErr } = await supabase
       .from("products")
-      .select("current_stock")
+      .select("id, name, initial_stock")
       .eq("active", true);
 
-    const totalStok = (stockData || []).reduce((sum, p) => sum + (p.current_stock || 0), 0);
+    // Fetch all stock movements in bulk
+    const { data: allStockIn } = await supabase.from("stock_in").select("product_id, quantity");
+    const { data: allAdj } = await supabase.from("stock_adjustments").select("product_id, quantity");
+    const { data: allSaleItems } = await supabase
+      .from("sale_items")
+      .select("product_id, quantity, sales!inner(active)")
+      .eq("sales.active", true);
+
+    // Group by product_id
+    const sumByProduct = (rows, field = "quantity") => {
+      const map = {};
+      (rows || []).forEach(r => {
+        const pid = r.product_id;
+        map[pid] = (map[pid] || 0) + Number(r[field] || 0);
+      });
+      return map;
+    };
+
+    const stockInMap = sumByProduct(allStockIn);
+    const adjMap = sumByProduct(allAdj);
+    const saleMap = sumByProduct(allSaleItems);
+
+    // Calculate dynamic stock per product
+    let totalStok = 0;
+    const stokRendah = [];
+    const stokHabis = [];
+    const lowStockThreshold = 5;
+
+    (allProducts || []).forEach(p => {
+      const dynamicStock = (p.initial_stock || 0)
+        + (stockInMap[p.id] || 0)
+        + (adjMap[p.id] || 0)
+        - (saleMap[p.id] || 0);
+      totalStok += dynamicStock;
+
+      if (dynamicStock <= 0) {
+        stokHabis.push({ nama: p.name, stok: dynamicStock });
+      } else if (dynamicStock <= lowStockThreshold) {
+        stokRendah.push({ nama: p.name, stok: dynamicStock });
+      }
+    });
 
     // 5. Penjualan Hari Ini
     const today = todayStr();
     const todayStart = `${today}T00:00:00Z`;
     const todayEnd = `${today}T23:59:59Z`;
 
-    // Query sales for today
     const { data: salesToday, error: sTodayErr } = await supabase
       .from("sales")
       .select("total")
@@ -100,26 +140,7 @@ export async function onRequestGet(context) {
     const totalPeriode = (salesPeriode || []).reduce((sum, s) => sum + Number(s.total), 0);
     const jumlahTransaksiPeriode = (salesPeriode || []).length;
 
-    // 7. Stok Rendah dan Stok Habis
-    const lowStockThreshold = 5;
-    const { data: allProducts, error: apErr } = await supabase
-      .from("products")
-      .select("name, current_stock")
-      .eq("active", true);
-
-    const stokRendah = [];
-    const stokHabis = [];
-
-    (allProducts || []).forEach(p => {
-      const stock = p.current_stock || 0;
-      if (stock <= 0) {
-        stokHabis.push({ nama: p.name, stok: stock });
-      } else if (stock <= lowStockThreshold) {
-        stokRendah.push({ nama: p.name, stok: stock });
-      }
-    });
-
-    if (pErr || cErr || sErr || stErr || sTodayErr || sPeriodeErr || apErr) {
+    if (pErr || cErr || sErr || sTodayErr || sPeriodeErr || apErr) {
       console.error("Dashboard summary data error");
       return fail("DASHBOARD_QUERY_ERROR", "Gagal menghitung ringkasan dashboard.", 500);
     }

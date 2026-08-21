@@ -13,6 +13,40 @@
   <meta name="theme-color" content="#001546" />
   <link rel="stylesheet" href="../assets/css/layout.css" />
   <link rel="stylesheet" href="../assets/css/components.css" />
+  <style>
+    .quick-menu-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .quick-menu-sub { font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px; }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (min-width: 640px) {
+      .quick-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .quick-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      padding: 20px 12px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--color-text);
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .quick-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      border-color: var(--color-primary);
+    }
+    .quick-card__icon { font-size: 32px; line-height: 1; }
+    .quick-card__label { font-weight: 700; font-size: 14px; }
+    .quick-card__desc { font-size: 12px; color: var(--color-text-muted); line-height: 1.4; }
+  </style>
 </head>
 <body>
   <div class="app-shell">
@@ -30,14 +64,45 @@
       <header class="topbar">
         <div style="display:flex; align-items:center; gap:12px;">
           <button class="btn btn--ghost btn--icon topbar__menu-btn" data-menu-toggle aria-label="Menu">☰</button>
-          <div class="topbar__title" data-page-title>Laporan</div>
+          <div class="topbar__title" data-page-title>Menu & Laporan</div>
         </div>
       </header>
 
       <main class="content">
-        <div class="state-block card">
-          <div>Modul <strong>Laporan</strong> akan dibangun di <strong>Phase 8</strong>.</div>
-          <div class="text-muted">Lihat README.md untuk urutan phase.</div>
+        <div class="quick-menu-title">Menu Cepat</div>
+        <div class="quick-menu-sub">Akses cepat ke semua modul</div>
+
+        <div class="quick-grid">
+          <a href="dashboard.html" class="quick-card">
+            <div class="quick-card__icon">🏠</div>
+            <div class="quick-card__label">Dashboard</div>
+            <div class="quick-card__desc">Ringkasan bisnis & grafik penjualan</div>
+          </a>
+          <a href="sales.html" class="quick-card">
+            <div class="quick-card__icon">🧾</div>
+            <div class="quick-card__label">Penjualan</div>
+            <div class="quick-card__desc">Kelola transaksi & cetak nota</div>
+          </a>
+          <a href="inventory.html" class="quick-card">
+            <div class="quick-card__icon">📦</div>
+            <div class="quick-card__label">Stok</div>
+            <div class="quick-card__desc">Mutasi stok masuk & penyesuaian</div>
+          </a>
+          <a href="products.html" class="quick-card">
+            <div class="quick-card__icon">🏷️</div>
+            <div class="quick-card__label">Barang</div>
+            <div class="quick-card__desc">Kelola produk & harga</div>
+          </a>
+          <a href="customers.html" class="quick-card">
+            <div class="quick-card__icon">👥</div>
+            <div class="quick-card__label">Customer</div>
+            <div class="quick-card__desc">Data pelanggan</div>
+          </a>
+          <a href="suppliers.html" class="quick-card">
+            <div class="quick-card__icon">🚚</div>
+            <div class="quick-card__label">Supplier</div>
+            <div class="quick-card__desc">Data pemasok</div>
+          </a>
         </div>
       </main>
     </div>
@@ -47,7 +112,7 @@
 
   <script type="module">
     import { renderShell } from "../assets/js/core/shell.js";
-    renderShell({ activePage: "reports.html", pageTitle: "Laporan" });
+    renderShell({ activePage: "reports.html", pageTitle: "Menu & Laporan" });
   </script>
 </body>
 </html>

@@ -116,6 +116,19 @@ export async function onRequestPost(context) {
     if (cErr || !customer) return fail("VALIDATION_ERROR", "Customer tidak valid.", 400);
     if (!customer.active) return fail("VALIDATION_ERROR", "Customer tidak aktif.", 400);
 
+    // Map kategori dari UI ke DB format
+    const categoryMapToDb = {
+      "Retail": "retail",
+      "Sub Agen": "sub_agen",
+      "User": "user",
+      "Grosir": "grosir",
+      "retail": "retail",
+      "sub_agen": "sub_agen",
+      "user": "user",
+      "grosir": "grosir"
+    };
+    const dbKategori = categoryMapToDb[kategori] || kategori.toLowerCase();
+
     // Validasi all items dan hitung subtotal & total
     const resolvedItems = [];
     let calculatedTotal = 0;
@@ -154,19 +167,6 @@ export async function onRequestPost(context) {
       if (calculatedStock < qty) {
         return fail("INSUFFICIENT_STOCK", `Stok ${product.name} tidak cukup (tersisa ${calculatedStock}).`, 400);
       }
-
-      // Map kategori dari UI ke DB format
-      const categoryMapToDb = {
-        "Retail": "retail",
-        "Sub Agen": "sub_agen",
-        "User": "user",
-        "Grosir": "grosir",
-        "retail": "retail",
-        "sub_agen": "sub_agen",
-        "user": "user",
-        "grosir": "grosir"
-      };
-      const dbKategori = categoryMapToDb[kategori] || kategori.toLowerCase();
 
       // Ambil default price
       const { data: priceRow, error: prErr } = await supabase
@@ -208,7 +208,7 @@ export async function onRequestPost(context) {
 
     // Call Supabase RPC create_sale_atomic
     const rpcParams = {
-      p_customer_category: kategori.toLowerCase(),
+      p_customer_category: dbKategori,
       p_payment_status: status.toLowerCase(),
       p_payment_method: metode,
       p_notes: payload.Catatan ? String(payload.Catatan).trim() : "",

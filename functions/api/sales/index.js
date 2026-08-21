@@ -206,32 +206,48 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Call Supabase RPC create_sale_atomic
-    const rpcParams = {
-      p_customer_category: dbKategori,
-      p_payment_status: status.toLowerCase(),
-      p_payment_method: metode,
-      p_notes: payload.Catatan ? String(payload.Catatan).trim() : "",
-      p_items: resolvedItems
-    };
+    // Direct insert ke tabel sales (bypass RPC yang menggunakan current_stock stale)
+    const saleDate = new Date().toISOString();
+    const { data: saleRow, error: saleErr } = await supabase
+      .from("sales")
+      .insert({
+        date: saleDate,
+        customer_category: dbKategori,
+        payment_status: status.toLowerCase(),
+        payment_method: metode,
+        notes: payload.Catatan ? String(payload.Catatan).trim() : "",
+        total: calculatedTotal,
+        active: true,
+        legacy_id: customerId
+      })
+      .select("id")
+      .single();
 
-    const { data: rpcRes, error: rpcErr } = await supabase
-      .rpc("create_sale", rpcParams);
-
-    if (rpcErr) {
-      console.error("RPC create_sale error:", rpcErr);
-      return fail("CREATE_SALE_RPC_ERROR", rpcErr.message, 500);
+    if (saleErr) {
+      console.error("Insert sales error:", saleErr);
+      return fail("SALES_INSERT_ERROR", saleErr.message, 500);
     }
 
-    // Update customer ID (legacy_id) di table sales karena RPC standard create_sale tidak menerima customer_id (melainkan name)
-    // Mari update sales.legacy_id = customerId
-    const saleId = typeof rpcRes === "object" && rpcRes !== null ? (rpcRes.sale_id || rpcRes.id) : rpcRes;
-    
-    if (saleId) {
-      await supabase
-        .from("sales")
-        .update({ legacy_id: customerId })
-        .eq("id", saleId);
+    const saleId = saleRow.id;
+
+    // Insert sale_items
+    const saleItemsPayload = resolvedItems.map(item => ({
+      sale_id: saleId,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      subtotal: item.subtotal
+    }));
+
+    const { error: itemsErr } = await supabase
+      .from("sale_items")
+      .insert(saleItemsPayload);
+
+    if (itemsErr) {
+      console.error("Insert sale_items error:", itemsErr);
+      // Rollback: hapus sales row yang baru dibuat
+      await supabase.from("sales").delete().eq("id", saleId);
+      return fail("SALE_ITEMS_INSERT_ERROR", itemsErr.message, 500);
     }
 
     const enrichedItems = resolvedItems.map(item => ({
@@ -253,7 +269,7 @@ export async function onRequestPost(context) {
       Total: calculatedTotal,
       Status_Bayar: status,
       Metode_Bayar: metode,
-      Catatan: rpcParams.p_notes,
+      Catatan: payload.Catatan ? String(payload.Catatan).trim() : "",
       Aktif: true,
       Items: enrichedItems
     });

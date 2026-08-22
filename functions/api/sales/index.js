@@ -202,7 +202,8 @@ export async function onRequestPost(context) {
         name: product.name,
         quantity: qty,
         unit_price: hargaSatuan,
-        subtotal: subtotal
+        subtotal: subtotal,
+        calculatedStock: calculatedStock
       });
     }
 
@@ -229,6 +230,15 @@ export async function onRequestPost(context) {
 
     const saleId = saleRow.id;
 
+    // Sinkronkan current_stock di database sebelum insert sale_items
+    // Ini diperlukan jika ada trigger lama di DB yang memvalidasi current_stock
+    for (const item of resolvedItems) {
+      await supabase
+        .from("products")
+        .update({ current_stock: item.calculatedStock })
+        .eq("id", item.product_id);
+    }
+
     // Insert sale_items
     const saleItemsPayload = resolvedItems.map(item => ({
       sale_id: saleId,
@@ -247,6 +257,14 @@ export async function onRequestPost(context) {
       // Rollback: hapus sales row yang baru dibuat
       await supabase.from("sales").delete().eq("id", saleId);
       return fail("SALE_ITEMS_INSERT_ERROR", itemsErr.message, 500);
+    }
+
+    // Update current_stock lagi setelah insert untuk memastikannya benar (jika trigger tidak menguranginya otomatis)
+    for (const item of resolvedItems) {
+      await supabase
+        .from("products")
+        .update({ current_stock: item.calculatedStock - item.quantity })
+        .eq("id", item.product_id);
     }
 
     const enrichedItems = resolvedItems.map(item => ({
